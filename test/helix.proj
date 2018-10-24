@@ -1,0 +1,86 @@
+<Project DefaultTargets="Test">
+
+  <!-- Version included until we get global.json generation to support this SDK. -->
+  <Sdk Name="Microsoft.DotNet.Helix.Sdk" Version="1.0.0-beta.18556.7" />
+
+  <!--<Target Name="_CheckForValidConfig" BeforeTargets="Test">
+    <Error Text="Missing required property: TestDirectory" Condition=" '$(TestDirectory)' == '' "/>
+    <Error Text="Missing required property: TestPlatform" Condition=" '$(TestPlatform)' == '' "/>
+    <Error Text="Missing required property: TestName" Condition=" '$(TestName)' == '' "/>
+    <Error Text="Missing required property: Tests" Condition=" '$(TestCommand)' == '' "/>
+
+    --><!-- TODO: get an actual link --><!--
+    <Error Text="Could not identify the helix queue for Testplatform '$(TestPlatform)'. See https://whatever.com for a list." Condition=" '$(HelixTargetQueues)' == '' "/>
+  </Target>-->
+
+  <Target Name="Gather" BeforeTargets="Test">
+    <ItemGroup>
+      <ProjectsToTest Include="$(ProjectsToTest)" />
+    </ItemGroup>
+
+    <MSBuild Projects="@(ProjectsToTest)"
+              Targets="CreateTestPayload"
+              BuildInParallel="true">
+      <Output TaskParameter="TargetOutputs" ItemName="TestPayload" />
+    </MSBuild>
+    <ItemGroup>
+      <TestProp Include="$(ProjectsToTest)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!-- Directory that is zipped up and sent as a correlation payload -->
+      <!--<HelixCorrelationPayload Include="..\testassets" />-->
+
+      <HelixCorrelationPayload Include="dotnet-sdk">
+        <Uri>https://dotnetcli.blob.core.windows.net/dotnet/Sdk/3.0.100-preview-009730/dotnet-sdk-3.0.100-preview-009730-win-x64.zip</Uri>
+      </HelixCorrelationPayload>
+      <!-- <HelixCorrelationPayload Include="dotnet-cli">
+        <Uri>https://dotnetcli.blob.core.windows.net/dotnet/Runtime/3.0.0-preview1-26907-05/dotnet-runtime-3.0.0-preview1-26907-05-win-x64.zip</Uri>
+      </HelixCorrelationPayload> -->
+      <!-- Workitem that is run on a machine from the $(HelixTargetQueues) queue -->
+      <HelixWorkItem Include="%(TestPayload.TestName)">
+        <Command>%(TestPayload.Command)</Command>
+        <!-- A directory that is zipped up and send as the work item payload -->
+        <PayloadDirectory>%(TestPayload.Identity)</PayloadDirectory>
+
+        <!-- A TimeSpan that specifies the work item execution timeout -->
+        <Timeout>00:30:00</Timeout>
+
+        <!-- Commands that will run before the work item command -->
+        <!-- <HelixPreCommands Condition="$(IsPosixShell)">$(HelixPreCommands);export PATH=$HELIX_CORRELATION_PAYLOAD:$PATH</HelixPreCommands> -->
+        <PreCommands>set PATH=%HELIX_CORRELATION_PAYLOAD%%3B%PATH%</PreCommands> <!-- %3B is an escaped ; -->
+
+      </HelixWorkItem>
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup>
+    <!-- The 'source' value reported to helix  -->
+    <HelixSource>pr/extensions/tests</HelixSource>
+    <!-- The 'type' value reported to helix  -->
+    <HelixType>test/haok</HelixType>
+    <!-- The 'build' value reported to helix package version switch TODO  -->
+
+    <HelixBuild>$([System.DateTime]::Now.ToString(yyyyMMdd-hhmmss))</HelixBuild>
+    <WaitForWorkItemCompletion>false</WaitForWorkItemCompletion>
+    <IncludeDotNetCli>false</IncludeDotNetCli>
+    <DotNetCliVersion>3.0.0-preview1-26907-05</DotNetCliVersion>
+
+    <!-- The helix queue this job should run on. -->
+    <!--<HelixTargetQueues Condition="'$(TestPlatform)' == 'Windows10.x64'">Windows.10.Amd64.Open</HelixTargetQueues>-->
+    <HelixTargetQueues>Windows.10.Amd64.Open</HelixTargetQueues>
+    <!-- <HelixTargetQueues>Windows.10.Amd64.Open;Ubuntu.1604.Open</HelixTargetQueues> -->
+    
+    <!--
+      'true' to enable the xunit reporter. Default 'false'
+      The xunit reporter will report test results from a test results
+      xml file found in the work item working directory.
+      The following file names are accepted:
+        testResults.xml
+        test-results.xml
+        test_results.xml
+    -->
+    <EnableXUnitReporter>true</EnableXUnitReporter>
+
+  </PropertyGroup>
+</Project>
