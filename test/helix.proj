@@ -48,7 +48,7 @@
 
         <!-- Commands that will run before the work item command -->
         <!-- <HelixPreCommands Condition="$(IsPosixShell)">$(HelixPreCommands);export PATH=$HELIX_CORRELATION_PAYLOAD:$PATH</HelixPreCommands> -->
-        <PreCommands>set PATH=%HELIX_CORRELATION_PAYLOAD%%3B%PATH%</PreCommands> <!-- %3B is an escaped ; -->
+        <!-- <PreCommands>set PATH=%HELIX_CORRELATION_PAYLOAD%;%PATH%</PreCommands> -->
 
       </HelixWorkItem>
     </ItemGroup>
