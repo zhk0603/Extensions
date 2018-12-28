@@ -30,6 +30,8 @@ namespace Microsoft.Extensions.Internal
     {
         private static readonly MethodInfo GetServiceInfo =
             GetMethodInfo<Func<IServiceProvider, Type, Type, bool, object>>((sp, t, r, c) => GetService(sp, t, r, c));
+        private static readonly MethodInfo ServiceActivatorGetServiceInfo =
+            GetMethodInfo<Func<IServiceActivator, IServiceProvider, object>>((sa, sp) => sa.GetService(sp));
 
         /// <summary>
         /// Instantiate a type with constructor arguments provided directly and/or from an <see cref="IServiceProvider"/>.
@@ -102,11 +104,19 @@ namespace Microsoft.Extensions.Internal
         /// </returns>
         public static ObjectFactory CreateFactory(Type instanceType, Type[] argumentTypes)
         {
+            return CreateFactory(null, instanceType, argumentTypes);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static ObjectFactory CreateFactory(IServiceProvider serviceProvider, Type instanceType, Type[] argumentTypes)
+        {
             FindApplicableConstructor(instanceType, argumentTypes, out ConstructorInfo constructor, out int?[] parameterMap);
 
             var provider = Expression.Parameter(typeof(IServiceProvider), "provider");
             var argumentArray = Expression.Parameter(typeof(object[]), "argumentArray");
-            var factoryExpressionBody = BuildFactoryExpression(constructor, parameterMap, provider, argumentArray);
+            var factoryExpressionBody = BuildFactoryExpression(serviceProvider?.GetService<IServiceActivatorFactory>(), constructor, parameterMap, provider, argumentArray);
 
             var factoryLamda = Expression.Lambda<Func<IServiceProvider, object[], object>>(
                 factoryExpressionBody, provider, argumentArray);
@@ -168,6 +178,7 @@ namespace Microsoft.Extensions.Internal
         }
 
         private static Expression BuildFactoryExpression(
+            IServiceActivatorFactory serviceActivatorFactory,
             ConstructorInfo constructor,
             int?[] parameterMap,
             Expression serviceProvider,
@@ -188,11 +199,28 @@ namespace Microsoft.Extensions.Internal
                 }
                 else
                 {
-                    var parameterTypeExpression = new Expression[] { serviceProvider,
-                        Expression.Constant(parameterType, typeof(Type)),
-                        Expression.Constant(constructor.DeclaringType, typeof(Type)),
-                        Expression.Constant(hasDefaultValue) };
-                    constructorArguments[i] = Expression.Call(GetServiceInfo, parameterTypeExpression);
+                    if (serviceActivatorFactory == null)
+                    {
+                        var parameterTypeExpression = new Expression[] { serviceProvider,
+                            Expression.Constant(parameterType, typeof(Type)),
+                            Expression.Constant(constructor.DeclaringType, typeof(Type)),
+                            Expression.Constant(hasDefaultValue) };
+                        constructorArguments[i] = Expression.Call(GetServiceInfo, parameterTypeExpression);
+                    }
+                    else
+                    {
+                        var serviceActivator = serviceActivatorFactory.Create(parameterType);
+                        if (serviceActivator == null && !hasDefaultValue)
+                        {
+                            var message = $"Unable to resolve service for type '{parameterType}' while attempting to activate '{constructor.DeclaringType}'.";
+                            throw new InvalidOperationException(message);
+                        }
+
+                        constructorArguments[i] = Expression.Call(
+                            Expression.Constant(serviceActivator, typeof(IServiceActivator)),
+                            ServiceActivatorGetServiceInfo,
+                            serviceProvider);
+                    }
                 }
 
                 // Support optional constructor arguments by passing in the default value

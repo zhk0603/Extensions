@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         private class ILEmitResolverBuilderRuntimeContext
         {
-            public IServiceScopeFactory ScopeFactory;
+            public ServiceProviderEngine ServiceProviderEngine;
             public object[] Constants;
             public Func<IServiceProvider, object>[] Factories;
         }
@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         private readonly CallSiteRuntimeResolver _runtimeResolver;
 
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly ServiceProviderEngine _serviceProviderEngine;
 
         private readonly ServiceProviderEngineScope _rootScope;
 
@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         private readonly Func<ServiceCacheKey, ServiceCallSite, GeneratedMethod> _buildTypeDelegate;
 
-        public ILEmitResolverBuilder(CallSiteRuntimeResolver runtimeResolver, IServiceScopeFactory serviceScopeFactory, ServiceProviderEngineScope rootScope) :
+        public ILEmitResolverBuilder(CallSiteRuntimeResolver runtimeResolver, ServiceProviderEngine serviceProviderEngine, ServiceProviderEngineScope rootScope) :
             base()
         {
             if (runtimeResolver == null)
@@ -55,7 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 throw new ArgumentNullException(nameof(runtimeResolver));
             }
             _runtimeResolver = runtimeResolver;
-            _serviceScopeFactory = serviceScopeFactory;
+            _serviceProviderEngine = serviceProviderEngine;
             _rootScope = rootScope;
             _scopeResolverCache = new ConcurrentDictionary<ServiceCacheKey, GeneratedMethod>();
             _buildTypeDelegate = (key, cs) => BuildTypeNoCache(cs);
@@ -196,9 +196,17 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         protected override object VisitServiceScopeFactory(ServiceScopeFactoryCallSite serviceScopeFactoryCallSite, ILEmitResolverBuilderContext argument)
         {
-            // this.ScopeFactory
+            // this.ServiceProviderEngine
             argument.Generator.Emit(OpCodes.Ldarg_0);
-            argument.Generator.Emit(OpCodes.Ldfld, typeof(ILEmitResolverBuilderRuntimeContext).GetField(nameof(ILEmitResolverBuilderRuntimeContext.ScopeFactory)));
+            argument.Generator.Emit(OpCodes.Ldfld, typeof(ILEmitResolverBuilderRuntimeContext).GetField(nameof(ILEmitResolverBuilderRuntimeContext.ServiceProviderEngine)));
+            return null;
+        }
+
+        protected override object VisitServiceActivatorFactory(ServiceActivatorFactoryCallSite serviceActivatorFactoryCallSite, ILEmitResolverBuilderContext argument)
+        {
+            // this.ServiceProviderEngine
+            argument.Generator.Emit(OpCodes.Ldarg_0);
+            argument.Generator.Emit(OpCodes.Ldfld, typeof(ILEmitResolverBuilderRuntimeContext).GetField(nameof(ILEmitResolverBuilderRuntimeContext.ServiceProviderEngine)));
             return null;
         }
 
@@ -404,7 +412,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             {
                 Constants = context.Constants?.ToArray(),
                 Factories = context.Factories?.ToArray(),
-                ScopeFactory = _serviceScopeFactory
+                ServiceProviderEngine = _serviceProviderEngine
             };
         }
 

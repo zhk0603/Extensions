@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             _expressionResolverBuilder = new ILEmitResolverBuilder(RuntimeResolver, this, Root);
         }
 
-        protected override Func<ServiceProviderEngineScope, object> RealizeService(ServiceCallSite callSite)
+        protected override Func<ServiceProviderEngineScope, object> RealizeService(ServiceCallSite callSite, bool requestedForActivator)
         {
             var realizedService = _expressionResolverBuilder.Build(callSite);
             RealizedServices[callSite.ServiceType] = realizedService;

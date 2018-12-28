@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public sealed class ServiceProvider : IServiceProvider, IDisposable, IServiceProviderEngineCallback
     {
-        private readonly IServiceProviderEngine _engine;
+        internal readonly IServiceProviderEngine _engine;
 
         private readonly CallSiteValidator _callSiteValidator;
 

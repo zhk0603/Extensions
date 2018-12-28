@@ -14,14 +14,20 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
         {
         }
 
-        protected override Func<ServiceProviderEngineScope, object> RealizeService(ServiceCallSite callSite)
+        protected override Func<ServiceProviderEngineScope, object> RealizeService(ServiceCallSite callSite, bool requestedForActivator)
         {
+            // Skip runtime resolutions if service is going to be used in activator
+            if (requestedForActivator)
+            {
+                return base.RealizeService(callSite, true);
+            }
+
             var callCount = 0;
             return scope =>
             {
                 if (Interlocked.Increment(ref callCount) == 2)
                 {
-                    Task.Run(() => base.RealizeService(callSite));
+                    Task.Run(() => base.RealizeService(callSite, false));
                 }
                 return RuntimeResolver.Resolve(callSite, scope);
             };

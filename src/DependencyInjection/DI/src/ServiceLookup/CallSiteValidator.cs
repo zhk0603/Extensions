@@ -102,6 +102,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         protected override Type VisitServiceScopeFactory(ServiceScopeFactoryCallSite serviceScopeFactoryCallSite, CallSiteValidatorState state) => null;
 
+        protected override Type VisitServiceActivatorFactory(ServiceActivatorFactoryCallSite serviceActivatorFactoryCallSite, CallSiteValidatorState argument) => null;
+
         protected override Type VisitFactory(FactoryCallSite factoryCallSite, CallSiteValidatorState state) => null;
 
         internal struct CallSiteValidatorState

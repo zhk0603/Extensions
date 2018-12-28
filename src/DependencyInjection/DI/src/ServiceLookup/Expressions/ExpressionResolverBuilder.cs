@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         private readonly CallSiteRuntimeResolver _runtimeResolver;
 
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly ServiceProviderEngine _serviceProviderEngine;
 
         private readonly ServiceProviderEngineScope _rootScope;
 
@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         private readonly Func<ServiceCacheKey, ServiceCallSite, Func<ServiceProviderEngineScope, object>> _buildTypeDelegate;
 
-        public ExpressionResolverBuilder(CallSiteRuntimeResolver runtimeResolver, IServiceScopeFactory serviceScopeFactory, ServiceProviderEngineScope rootScope)
+        public ExpressionResolverBuilder(CallSiteRuntimeResolver runtimeResolver, ServiceProviderEngine serviceProviderEngine, ServiceProviderEngineScope rootScope)
         {
             if (runtimeResolver == null)
             {
@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
             _scopeResolverCache = new ConcurrentDictionary<ServiceCacheKey, Func<ServiceProviderEngineScope, object>>();
             _runtimeResolver = runtimeResolver;
-            _serviceScopeFactory = serviceScopeFactory;
+            _serviceProviderEngine = serviceProviderEngine;
             _rootScope = rootScope;
             _buildTypeDelegate = (key, cs) => BuildNoCache(cs);
         }
@@ -120,7 +120,12 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         protected override Expression VisitServiceScopeFactory(ServiceScopeFactoryCallSite serviceScopeFactoryCallSite, object context)
         {
-            return Expression.Constant(_serviceScopeFactory);
+            return Expression.Constant(_serviceProviderEngine);
+        }
+
+        protected override Expression VisitServiceActivatorFactory(ServiceActivatorFactoryCallSite serviceActivatorFactoryCallSite, object argument)
+        {
+            return Expression.Constant(_serviceProviderEngine);
         }
 
         protected override Expression VisitFactory(FactoryCallSite factoryCallSite, object context)

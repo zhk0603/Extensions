@@ -5,9 +5,9 @@ using System;
 
 namespace Microsoft.Extensions.DependencyInjection.Specification
 {
-    public class StashBoxDependencyInjectionSpecificationTests: DependencyInjectionSpecificationTests
+    public class StashBoxDependencyInjectionSpecificationTests: SkippableDependencyInjectionSpecificationTests
     {
-        protected override IServiceProvider CreateServiceProvider(IServiceCollection serviceCollection)
+        protected override IServiceProvider CreateServiceProviderImpl(IServiceCollection serviceCollection)
         {
             return serviceCollection.UseStashbox();
         }

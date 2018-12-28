@@ -6,8 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection.Specification
 {
     public abstract class SkippableDependencyInjectionSpecificationTests: DependencyInjectionSpecificationTests
     {
-        public abstract string[] SkippedTests { get; }
-
+        public virtual string[] SkippedTests { get; }
 
         protected sealed override IServiceProvider CreateServiceProvider(IServiceCollection serviceCollection)
         {

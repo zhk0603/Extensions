@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 {
-    internal abstract class ServiceProviderEngine : IServiceProviderEngine, IServiceScopeFactory
+    internal abstract class ServiceProviderEngine : IServiceProviderEngine, IServiceScopeFactory, IServiceActivatorFactory
     {
         private readonly IServiceProviderEngineCallback _callback;
 
@@ -24,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             CallSiteFactory = new CallSiteFactory(serviceDescriptors);
             CallSiteFactory.Add(typeof(IServiceProvider), new ServiceProviderCallSite());
             CallSiteFactory.Add(typeof(IServiceScopeFactory), new ServiceScopeFactoryCallSite());
+            CallSiteFactory.Add(typeof(IServiceActivatorFactory), new ServiceScopeFactoryCallSite());
             RealizedServices = new ConcurrentDictionary<Type, Func<ServiceProviderEngineScope, object>>();
         }
 
@@ -60,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         public object GetService(Type serviceType) => GetService(serviceType, Root);
 
-        protected abstract Func<ServiceProviderEngineScope, object> RealizeService(ServiceCallSite callSite);
+        protected abstract Func<ServiceProviderEngineScope, object> RealizeService(ServiceCallSite callSite, bool requestedForActivator);
 
         public void Dispose()
         {
@@ -98,10 +99,24 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             {
                 DependencyInjectionEventSource.Log.CallSiteBuilt(serviceType, callSite);
                 _callback?.OnCreate(callSite);
-                return RealizeService(callSite);
+                return RealizeService(callSite, false);
             }
 
             return _ => null;
+        }
+
+        public IServiceActivator Create(Type serviceType)
+        {
+            var callSite = CallSiteFactory.GetCallSite(serviceType, new CallSiteChain());
+            if (callSite != null)
+            {
+                DependencyInjectionEventSource.Log.CallSiteBuilt(serviceType, callSite);
+                _callback?.OnCreate(callSite);
+
+                return new RealizedServiceActivator(RealizeService(callSite, true));
+            }
+
+            return null;
         }
     }
 }

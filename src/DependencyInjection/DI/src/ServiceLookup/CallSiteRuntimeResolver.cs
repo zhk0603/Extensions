@@ -117,6 +117,11 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             return context.Scope.Engine;
         }
 
+        protected override object VisitServiceActivatorFactory(ServiceActivatorFactoryCallSite serviceActivatorFactoryCallSite, RuntimeResolverContext context)
+        {
+            return context.Scope.Engine;
+        }
+
         protected override object VisitIEnumerable(IEnumerableCallSite enumerableCallSite, RuntimeResolverContext context)
         {
             var array = Array.CreateInstance(
