@@ -16,21 +16,6 @@ namespace Microsoft.Extensions.DependencyInjection
         object GetService(IServiceProvider provider);
     }
 
-    internal class DefaultServiceActivator: IServiceActivator
-    {
-        private readonly Type _serviceType;
-
-        public DefaultServiceActivator(Type serviceType)
-        {
-            _serviceType = serviceType;
-        }
-
-        public object GetService(IServiceProvider provider)
-        {
-            return provider.GetService(_serviceType);
-        }
-    }
-
     /// <summary>
     ///
     /// </summary>

@@ -126,32 +126,5 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return provider.GetRequiredService<IServiceScopeFactory>().CreateScope();
         }
-
-        /// <summary>
-        /// Creates a new <see cref="IServiceScope"/> that can be used to resolve scoped services.
-        /// </summary>
-        /// <param name="provider">The <see cref="IServiceProvider"/> to create the scope from.</param>
-        /// <param name="serviceType"></param>
-        /// <returns>A <see cref="IServiceScope"/> that can be used to resolve scoped services.</returns>
-        public static IServiceActivator CreateServiceActivator(this IServiceProvider provider, Type serviceType)
-        {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
-            if (serviceType == null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
-
-            var serviceActivatorFactory = provider.GetRequiredService<IServiceActivatorFactory>();
-            if (serviceActivatorFactory == null)
-            {
-                return new DefaultServiceActivator(serviceType);
-            }
-
-            return serviceActivatorFactory.Create(serviceType);
-        }
     }
 }
