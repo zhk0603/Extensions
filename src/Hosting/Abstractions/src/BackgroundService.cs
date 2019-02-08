@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,8 +12,12 @@ namespace Microsoft.Extensions.Hosting
     /// </summary>
     public abstract class BackgroundService : IHostedService, IDisposable
     {
-        private Task _executingTask;
         private readonly CancellationTokenSource _stoppingCts = new CancellationTokenSource();
+
+        /// <summary>
+        /// The task returned from ExecuteAsync.
+        /// </summary>
+        public Task ExecutingTask { get; private set; }
 
         /// <summary>
         /// This method is called when the <see cref="IHostedService"/> starts. The implementation should return a task that represents
@@ -30,15 +34,8 @@ namespace Microsoft.Extensions.Hosting
         public virtual Task StartAsync(CancellationToken cancellationToken)
         {
             // Store the task we're executing
-            _executingTask = ExecuteAsync(_stoppingCts.Token);
+            ExecutingTask = Task.Run(() => ExecuteAsync(_stoppingCts.Token), cancellationToken);
 
-            // If the task is completed then return it, this will bubble cancellation and failure to the caller
-            if (_executingTask.IsCompleted)
-            {
-                return _executingTask;
-            }
-
-            // Otherwise it's running
             return Task.CompletedTask;
         }
 
@@ -49,7 +46,7 @@ namespace Microsoft.Extensions.Hosting
         public virtual async Task StopAsync(CancellationToken cancellationToken)
         {
             // Stop called without start
-            if (_executingTask == null)
+            if (ExecutingTask == null)
             {
                 return;
             }
@@ -62,7 +59,7 @@ namespace Microsoft.Extensions.Hosting
             finally
             {
                 // Wait until the task completes or the stop token triggers
-                await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
+                await Task.WhenAny(ExecutingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             }
 
         }

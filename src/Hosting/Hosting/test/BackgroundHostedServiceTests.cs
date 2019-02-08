@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -65,11 +65,11 @@ namespace Microsoft.Extensions.Hosting.Tests
 
             await service.StartAsync(CancellationToken.None);
 
-            Assert.False(service.ExecuteTask.IsCompleted);
+            Assert.False(service.ExecutingTask.IsCompleted);
 
             await service.StopAsync(CancellationToken.None);
 
-            Assert.True(service.ExecuteTask.IsCompleted);
+            Assert.True(service.ExecutingTask.IsCompleted);
         }
 
         [Fact]
@@ -106,11 +106,31 @@ namespace Microsoft.Extensions.Hosting.Tests
             service.Dispose();
         }
 
+        [Fact]
+        public async Task BlockingStartDoesNotBlockStartAsync()
+        {
+            var service = new BlockUntilStopService();
+            await service.StartAsync(CancellationToken.None);
+
+            await service.StopAsync(CancellationToken.None);
+
+            Assert.True(service.ExecutingTask.IsCanceled);
+        }
+
         private class WaitForCancelledTokenService : BackgroundService
         {
             protected override Task ExecuteAsync(CancellationToken stoppingToken)
             {
                 return Task.Delay(Timeout.Infinite, stoppingToken);
+            }
+        }
+
+        private class BlockUntilStopService : BackgroundService
+        {
+            protected override Task ExecuteAsync(CancellationToken stoppingToken)
+            {
+                stoppingToken.WaitHandle.WaitOne();
+                return Task.CompletedTask;
             }
         }
 
@@ -147,20 +167,12 @@ namespace Microsoft.Extensions.Hosting.Tests
         {
             private readonly Task _task;
 
-            public Task ExecuteTask { get; set; }
-
             public MyBackgroundService(Task task)
             {
                 _task = task;
             }
 
             protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-            {
-                ExecuteTask = ExecuteCore(stoppingToken);
-                await ExecuteTask;
-            }
-
-            private async Task ExecuteCore(CancellationToken stoppingToken)
             {
                 var task = await Task.WhenAny(_task, Task.Delay(Timeout.Infinite, stoppingToken));
 
