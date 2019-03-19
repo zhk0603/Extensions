@@ -1,13 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.JSInterop.Internal;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.JSInterop.Internal;
 
 namespace Microsoft.JSInterop
 {
@@ -40,11 +42,11 @@ namespace Microsoft.JSInterop
             var targetInstance = (object)null;
             if (dotNetObjectId != default)
             {
-                targetInstance = jsRuntime.ArgSerializerStrategy.FindDotNetObject(dotNetObjectId);
+                targetInstance = jsRuntime.FindDotNetObject(dotNetObjectId);
             }
 
             var syncResult = InvokeSynchronously(assemblyName, methodIdentifier, targetInstance, argsJson);
-            return syncResult == null ? null : Json.Serialize(syncResult, jsRuntime.ArgSerializerStrategy);
+            return syncResult == null ? null : Json.Serialize(syncResult);
         }
 
         /// <summary>
@@ -70,7 +72,7 @@ namespace Microsoft.JSInterop
 
             var targetInstance = dotNetObjectId == default
                 ? null
-                : jsRuntimeBaseInstance.ArgSerializerStrategy.FindDotNetObject(dotNetObjectId);
+                : jsRuntimeBaseInstance.FindDotNetObject(dotNetObjectId);
 
             object syncResult = null;
             Exception syncException = null;
@@ -135,40 +137,51 @@ namespace Microsoft.JSInterop
                 assemblyName = targetInstance.GetType().Assembly.GetName().Name;
             }
 
+            var jsRuntimeBaseInstance = (JSRuntimeBase)JSRuntime.Current;
+
             var (methodInfo, parameterTypes) = GetCachedMethodInfo(assemblyName, methodIdentifier);
 
-            // There's no direct way to say we want to deserialize as an array with heterogenous
-            // entry types (e.g., [string, int, bool]), so we need to deserialize in two phases.
-            // First we deserialize as object[], for which SimpleJson will supply JsonObject
-            // instances for nonprimitive values.
-            var suppliedArgs = (object[])null;
-            var suppliedArgsLength = 0;
-            if (argsJson != null)
+            using var jsonDocument = JsonDocument.Parse(argsJson);
+
+            if (jsonDocument.RootElement.Type != JsonValueType.Array)
             {
-                suppliedArgs = Json.Deserialize<SimpleJson.JsonArray>(argsJson).ToArray<object>();
-                suppliedArgsLength = suppliedArgs.Length;
-            }
-            if (suppliedArgsLength != parameterTypes.Length)
-            {
-                throw new ArgumentException($"In call to '{methodIdentifier}', expected {parameterTypes.Length} parameters but received {suppliedArgsLength}.");
+                throw new ArgumentException("args must be an array", nameof(argsJson));
             }
 
-            // Second, convert each supplied value to the type expected by the method
-            var runtime = (JSRuntimeBase)JSRuntime.Current;
-            var serializerStrategy = runtime.ArgSerializerStrategy;
-            for (var i = 0; i < suppliedArgsLength; i++)
+            // parameterTypes is controlled by the app so it's to determine argsJson length based on it.
+            var suppliedArgs = new object[parameterTypes.Length];
+            var index = 0;
+            foreach (var element in jsonDocument.RootElement.EnumerateArray())
             {
-                if (parameterTypes[i] == typeof(JSAsyncCallResult))
+                var parameterType = parameterTypes[index];
+                if (parameterType == typeof(JSAsyncCallResult))
                 {
                     // For JS async call results, we have to defer the deserialization until
                     // later when we know what type it's meant to be deserialized as
-                    suppliedArgs[i] = new JSAsyncCallResult(suppliedArgs[i]);
+                    if (element.Type == JsonValueType.Null)
+                    {
+                        suppliedArgs[index] = JSAsyncCallResult.NullResult;
+                    }
+                    else
+                    {
+                        suppliedArgs[index] = new JSAsyncCallResult(element.GetRawText());
+                    }
+                }
+                else if (element.Type == JsonValueType.String && jsRuntimeBaseInstance.TryReadDotNetObject(element.GetString(), out var @object))
+                {
+                    suppliedArgs[index] = @object;
                 }
                 else
                 {
-                    suppliedArgs[i] = serializerStrategy.DeserializeObject(
-                        suppliedArgs[i], parameterTypes[i]);
+                    suppliedArgs[index] = JsonSerializer.Parse(element.GetRawText(), parameterTypes[index]);
                 }
+
+                index++;
+            }
+
+            if (index != parameterTypes.Length)
+            {
+                throw new ArgumentException($"In call to '{methodIdentifier}', expected {parameterTypes.Length} parameters but received {index}.");
             }
 
             try
@@ -190,7 +203,7 @@ namespace Microsoft.JSInterop
         /// <param name="result">If <paramref name="succeeded"/> is <c>true</c>, specifies the invocation result. If <paramref name="succeeded"/> is <c>false</c>, gives the <see cref="Exception"/> corresponding to the invocation failure.</param>
         [JSInvokable(nameof(DotNetDispatcher) + "." + nameof(EndInvoke))]
         public static void EndInvoke(long asyncHandle, bool succeeded, JSAsyncCallResult result)
-            => ((JSRuntimeBase)JSRuntime.Current).EndInvokeJS(asyncHandle, succeeded, result.ResultOrException);
+            => ((JSRuntimeBase)JSRuntime.Current).EndInvokeJS(asyncHandle, succeeded, result);
 
         /// <summary>
         /// Releases the reference to the specified .NET object. This allows the .NET runtime
@@ -207,7 +220,7 @@ namespace Microsoft.JSInterop
         {
             // DotNetDispatcher only works with JSRuntimeBase instances.
             var jsRuntime = (JSRuntimeBase)JSRuntime.Current;
-            jsRuntime.ArgSerializerStrategy.ReleaseDotNetObject(dotNetObjectId);
+            jsRuntime.ReleaseDotNetObject(dotNetObjectId);
         }
 
         private static (MethodInfo, Type[]) GetCachedMethodInfo(string assemblyName, string methodIdentifier)

@@ -12,7 +12,7 @@ namespace Microsoft.JSInterop
     ///
     /// To avoid leaking memory, the reference must later be disposed by JS code or by .NET code.
     /// </summary>
-    public class DotNetObjectRef : IDisposable
+    public class DotNetObjectRef : IDisposable, IConvertible
     {
         /// <summary>
         /// Gets the object instance represented by this wrapper.
@@ -62,5 +62,91 @@ namespace Microsoft.JSInterop
         {
             _attachedToRuntime?.UntrackObjectRef(this);
         }
+
+        #region IConvertible
+        TypeCode IConvertible.GetTypeCode() => TypeCode.String;
+
+        bool IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        byte IConvertible.ToByte(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        char IConvertible.ToChar(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        double IConvertible.ToDouble(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        short IConvertible.ToInt16(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        int IConvertible.ToInt32(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        long IConvertible.ToInt64(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        float IConvertible.ToSingle(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        string IConvertible.ToString(IFormatProvider provider)
+        {
+            var jsRuntime = (JSRuntimeBase)JSRuntime.Current;
+            var objectId = jsRuntime.TrackDotNetObject(this, out var id);
+            return JSRuntimeBase.DotNetObjectPrefix + objectId;
+        }
+
+        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            throw new NotSupportedException();
+        }
+        #endregion
     }
 }

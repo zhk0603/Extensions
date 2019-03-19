@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Text.Json.Serialization;
+
 namespace Microsoft.JSInterop
 {
     /// <summary>
@@ -18,22 +20,14 @@ namespace Microsoft.JSInterop
         /// </summary>
         /// <param name="value">The value to serialize.</param>
         /// <returns>The JSON string.</returns>
-        public static string Serialize(object value)
-            => SimpleJson.SimpleJson.SerializeObject(value);
-
-        internal static string Serialize(object value, SimpleJson.IJsonSerializerStrategy serializerStrategy)
-            => SimpleJson.SimpleJson.SerializeObject(value, serializerStrategy);
+        public static string Serialize<TValue>(TValue value) => JsonSerializer.ToString<TValue>(value);
 
         /// <summary>
         /// Deserializes the JSON string, creating an object of the specified generic type.
         /// </summary>
-        /// <typeparam name="T">The type of object to create.</typeparam>
+        /// <typeparam name="TValue">The type of object to create.</typeparam>
         /// <param name="json">The JSON string.</param>
         /// <returns>An object of the specified type.</returns>
-        public static T Deserialize<T>(string json)
-            => SimpleJson.SimpleJson.DeserializeObject<T>(json);
-
-        internal static T Deserialize<T>(string json, SimpleJson.IJsonSerializerStrategy serializerStrategy)
-            => SimpleJson.SimpleJson.DeserializeObject<T>(json, serializerStrategy);
+        public static TValue Deserialize<TValue>(string json) => JsonSerializer.Parse<TValue>(json);
     }
 }

@@ -20,17 +20,19 @@ namespace Microsoft.JSInterop.Internal
     /// <summary>
     /// Intended for framework use only.
     /// </summary>
-    public class JSAsyncCallResult
+    public sealed class JSAsyncCallResult
     {
-        internal object ResultOrException { get; }
+        internal static readonly JSAsyncCallResult NullResult = new JSAsyncCallResult(null);
 
         /// <summary>
         /// Constructs an instance of <see cref="JSAsyncCallResult"/>.
         /// </summary>
         /// <param name="resultOrException">The result of the call.</param>
-        internal JSAsyncCallResult(object resultOrException)
+        internal JSAsyncCallResult(string resultOrException)
         {
-            ResultOrException = resultOrException;
+            ResultOrExceptionJson = resultOrException;
         }
+
+        internal string ResultOrExceptionJson { get; }
     }
 }
