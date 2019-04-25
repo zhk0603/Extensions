@@ -528,7 +528,7 @@ namespace Microsoft.Extensions.DependencyInjection
         // See comments on HttpClientMappingRegistry.
         private static void ReserveClient(IHttpClientBuilder builder, Type type, string name)
         {
-            var registry = (HttpClientMappingRegistry)builder.Services.Single(sd => sd.ServiceType == typeof(HttpClientMappingRegistry)).ImplementationInstance;
+            var registry = HttpClientMappingRegistry.Get(builder.Services);
             Debug.Assert(registry != null);
 
             // Check for same type registered twice. This can't work because typed clients have to be unique for DI to function.
