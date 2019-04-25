@@ -47,6 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Misc infrastructure
             //
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, LoggingHttpMessageHandlerBuilderFilter>());
+            services.TryAddSingleton(new HttpClientMappingRegistry());
 
             return services;
         }
