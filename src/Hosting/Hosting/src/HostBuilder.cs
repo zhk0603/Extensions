@@ -207,7 +207,7 @@ namespace Microsoft.Extensions.Hosting
             services.AddSingleton<IHost, Internal.Host>();
             services.AddOptions();
             services.AddLogging();
-            
+
             foreach (var configureServicesAction in _configureServicesActions)
             {
                 configureServicesAction(_hostBuilderContext, services);

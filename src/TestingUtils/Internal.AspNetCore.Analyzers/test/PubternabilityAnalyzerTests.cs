@@ -182,7 +182,7 @@ namespace A
         public static IEnumerable<object[]> TypeUsages =>
             ApplyModifiers(TypeUsageStrings, string.Empty);
 
-        public static string[] MemberDefinitions => new []
+        public static string[] MemberDefinitions => new[]
         {
             "/*MM*/C c;",
             "T(/*MM*/C c) {}",
@@ -191,7 +191,7 @@ namespace A
             "delegate /*MM*/C WOW();"
         };
 
-        public static string[] TypeDefinitions => new []
+        public static string[] TypeDefinitions => new[]
         {
             "delegate /*MM*/C WOW();",
             "class /*MM*/T: P<C> { } public class P<T> {}",
@@ -199,7 +199,7 @@ namespace A
             "class T { public class /*MM*/T1: C { } }"
         };
 
-        public static string[] AllowedMemberDefinitions => new []
+        public static string[] AllowedMemberDefinitions => new[]
         {
             "T([CA]int c) {}",
             "[CA] MOD int f;",
@@ -207,12 +207,12 @@ namespace A
             "[CA] MOD class CC { }"
         };
 
-        public static string[] AllowedDefinitions => new []
+        public static string[] AllowedDefinitions => new[]
         {
             "class T: I<C> { } interface I<T> {}"
         };
 
-        public static string[] TypeUsageStrings => new []
+        public static string[] TypeUsageStrings => new[]
         {
             "/*MM*/var c = new C();",
             "/*MM*/CD d = () => null;",
@@ -248,12 +248,12 @@ namespace A
 
             var mainProject = CreateProject(code).AddProjectReference(new ProjectReference(libraray.Id));
 
-            return GetDiagnosticsAsync(mainProject.Documents.ToArray(), new PubternalityAnalyzer(), new [] { "PUB0002" });
+            return GetDiagnosticsAsync(mainProject.Documents.ToArray(), new PubternalityAnalyzer(), new[] { "PUB0002" });
         }
 
         private Task<Diagnostic[]> GetDiagnostics(string code)
         {
-            return GetDiagnosticsAsync(new[] { code }, new PubternalityAnalyzer(), new [] { "PUB0002" });
+            return GetDiagnosticsAsync(new[] { code }, new PubternalityAnalyzer(), new[] { "PUB0002" });
         }
     }
 }

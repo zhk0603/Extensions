@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.Http.Logging
             }
 
             private static readonly Action<ILogger, HttpMethod, Uri, Exception> _requestStart = LoggerMessage.Define<HttpMethod, Uri>(
-                LogLevel.Information, 
+                LogLevel.Information,
                 EventIds.RequestStart,
                 "Sending HTTP request {HttpMethod} {Uri}");
 
@@ -76,10 +76,10 @@ namespace Microsoft.Extensions.Http.Logging
                 if (logger.IsEnabled(LogLevel.Trace))
                 {
                     logger.Log(
-                        LogLevel.Trace, 
-                        EventIds.RequestHeader, 
+                        LogLevel.Trace,
+                        EventIds.RequestHeader,
                         new HttpHeadersLogValue(HttpHeadersLogValue.Kind.Request, request.Headers, request.Content?.Headers),
-                        null, 
+                        null,
                         (state, ex) => state.ToString());
                 }
             }
@@ -91,10 +91,10 @@ namespace Microsoft.Extensions.Http.Logging
                 if (logger.IsEnabled(LogLevel.Trace))
                 {
                     logger.Log(
-                        LogLevel.Trace, 
-                        EventIds.ResponseHeader, 
-                        new HttpHeadersLogValue(HttpHeadersLogValue.Kind.Response, response.Headers, response.Content?.Headers), 
-                        null, 
+                        LogLevel.Trace,
+                        EventIds.ResponseHeader,
+                        new HttpHeadersLogValue(HttpHeadersLogValue.Kind.Response, response.Headers, response.Content?.Headers),
+                        null,
                         (state, ex) => state.ToString());
                 }
             }

@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.Configuration
         /// </summary>
         public virtual void Load()
         { }
-       
+
         /// <summary>
         /// Returns the list of keys that this provider has.
         /// </summary>

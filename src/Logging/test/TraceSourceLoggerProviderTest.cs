@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.Logging.Test
 
             // Assert
             Assert.Equal(1, listener.FlushCount);
-            Assert.Equal(new []
+            Assert.Equal(new[]
             {
                 "FirstLogger Error: 0 : ",
                 "message1" + Environment.NewLine,

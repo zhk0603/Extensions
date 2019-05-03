@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.Logging.AzureAppServices
     /// <summary>
     /// Options for Azure diagnostics file logging.
     /// </summary>
-    public class AzureFileLoggerOptions: BatchingLoggerOptions
+    public class AzureFileLoggerOptions : BatchingLoggerOptions
     {
         private int? _fileSizeLimit = 10 * 1024 * 1024;
         private int? _retainedFileCountLimit = 2;

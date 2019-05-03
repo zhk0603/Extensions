@@ -654,7 +654,7 @@ namespace Microsoft.Extensions.Configuration.Binder.Test
             var config = configurationBuilder.Build();
 
             var options = new ComplexOptions();
-            config.Bind(options, o => o.BindNonPublicProperties = true );
+            config.Bind(options, o => o.BindNonPublicProperties = true);
             Assert.Equal("stuff", options.GetType().GetTypeInfo().GetDeclaredProperty(property).GetValue(options));
         }
 

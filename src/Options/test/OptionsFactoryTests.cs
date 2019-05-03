@@ -181,12 +181,12 @@ namespace Microsoft.Extensions.Options.Tests
         public class UberBothSetup : IConfigureNamedOptions<FakeOptions>, IConfigureNamedOptions<FakeOptions2>, IPostConfigureOptions<FakeOptions>, IPostConfigureOptions<FakeOptions2>
         {
             public void Configure(string name, FakeOptions options)
-                => options.Message += "["+name;
+                => options.Message += "[" + name;
 
             public void Configure(FakeOptions options) => Configure(Options.DefaultName, options);
 
             public void Configure(string name, FakeOptions2 options)
-                => options.Message += "[["+name;
+                => options.Message += "[[" + name;
 
             public void Configure(FakeOptions2 options) => Configure(Options.DefaultName, options);
 

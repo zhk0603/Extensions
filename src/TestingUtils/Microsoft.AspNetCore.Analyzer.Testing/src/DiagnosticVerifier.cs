@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Analyzer.Testing
         private readonly ITestOutputHelper _testOutputHelper;
 
         /// <inheritdoc />
-        protected DiagnosticVerifier(): this(null)
+        protected DiagnosticVerifier() : this(null)
         {
         }
 

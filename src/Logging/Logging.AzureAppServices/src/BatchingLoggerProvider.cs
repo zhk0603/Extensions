@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Logging.AzureAppServices
 {
-    public abstract class BatchingLoggerProvider: ILoggerProvider, ISupportExternalScope
+    public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternalScope
     {
         private readonly List<LogMessage> _currentBatch = new List<LogMessage>();
         private readonly TimeSpan _interval;

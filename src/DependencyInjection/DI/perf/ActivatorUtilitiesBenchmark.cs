@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection.Performance
         [Benchmark]
         public void ServiceProvider()
         {
-           _serviceProvider.GetService<TypeToBeActivated>();
+            _serviceProvider.GetService<TypeToBeActivated>();
         }
 
         [Benchmark]
@@ -67,8 +67,8 @@ namespace Microsoft.Extensions.DependencyInjection.Performance
             }
         }
 
-        public class DependencyA {}
-        public class DependencyB {}
-        public class DependencyC {}
+        public class DependencyA { }
+        public class DependencyB { }
+        public class DependencyC { }
     }
 }

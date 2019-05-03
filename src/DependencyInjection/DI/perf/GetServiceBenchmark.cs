@@ -7,7 +7,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Microsoft.Extensions.DependencyInjection.Performance
 {
-    public class GetServiceBenchmark: ServiceProviderEngineBenchmark
+    public class GetServiceBenchmark : ServiceProviderEngineBenchmark
     {
         private const int OperationsPerInvoke = 50000;
 

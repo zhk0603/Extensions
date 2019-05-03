@@ -153,7 +153,7 @@ namespace Microsoft.Extensions.CommandLineUtils
 
                         if (option == null)
                         {
-                            if (string.IsNullOrEmpty(longOptionName) && !command._throwOnUnexpectedArg  && AllowArgumentSeparator)
+                            if (string.IsNullOrEmpty(longOptionName) && !command._throwOnUnexpectedArg && AllowArgumentSeparator)
                             {
                                 // skip over the '--' argument separator
                                 index++;

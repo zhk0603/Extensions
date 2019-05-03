@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.Configuration
     public class ConfigurationKeyComparer : IComparer<string>
     {
         private static readonly string[] _keyDelimiterArray = new[] { ConfigurationPath.KeyDelimiter };
-        
+
         /// <summary>
         /// The default instance.
         /// </summary>

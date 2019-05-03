@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.Logging.AzureAppServices
     /// <summary>
     /// Options for Azure diagnostics blob logging.
     /// </summary>
-    public class AzureBlobLoggerOptions: BatchingLoggerOptions
+    public class AzureBlobLoggerOptions : BatchingLoggerOptions
     {
         private string _blobName = "applicationLog.txt";
 

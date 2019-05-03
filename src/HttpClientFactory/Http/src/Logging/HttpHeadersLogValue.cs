@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.Http.Logging
         public HttpHeaders Headers { get; }
 
         public HttpHeaders ContentHeaders { get; }
-        
+
         private List<KeyValuePair<string, object>> Values
         {
             get
@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.Http.Logging
                 if (_values == null)
                 {
                     var values = new List<KeyValuePair<string, object>>();
-                    
+
                     foreach (var kvp in Headers)
                     {
                         values.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));

@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.FileProviders.Physical.Tests
 
                     data.Add(combo.name, combo.attr, ExclusionFilters.Hidden,
                         (combo.attr & FileAttributes.Hidden) != 0
-                        || (combo.name[0] == '.' &&!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)));
+                        || (combo.name[0] == '.' && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)));
 
                     data.Add(combo.name, combo.attr, ExclusionFilters.Sensitive,
                         combo.name[0] == '.'

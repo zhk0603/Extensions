@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.Logging.AzureAppServices.Test
         [Fact]
         public void InitializesBlobUriSiteInstanceAndName()
         {
-            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new []
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new[]
             {
                 new KeyValuePair<string, string>("APPSETTING_DIAGNOSTICS_AZUREBLOBCONTAINERSASURL", "http://container/url")
             }).Build();

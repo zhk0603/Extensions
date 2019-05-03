@@ -93,7 +93,7 @@ namespace Microsoft.Extensions.Logging.EventSource
                 if (exception != null)
                 {
                     var exceptionInfo = GetExceptionInfo(exception);
-                    var exceptionInfoData = new []
+                    var exceptionInfoData = new[]
                     {
                         new KeyValuePair<string, string>("TypeName", exceptionInfo.TypeName),
                         new KeyValuePair<string, string>("Message", exceptionInfo.Message),

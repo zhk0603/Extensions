@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.CommandLineUtils
             {
                 return mainModule.FileName;
             }
-            
+
             return null;
         }
     }

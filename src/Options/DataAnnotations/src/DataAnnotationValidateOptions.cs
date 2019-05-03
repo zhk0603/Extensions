@@ -41,8 +41,8 @@ namespace Microsoft.Extensions.Options
             {
                 var validationResults = new List<ValidationResult>();
                 if (Validator.TryValidateObject(options,
-                    new ValidationContext(options, serviceProvider: null, items: null), 
-                    validationResults, 
+                    new ValidationContext(options, serviceProvider: null, items: null),
+                    validationResults,
                     validateAllProperties: true))
                 {
                     return ValidateOptionsResult.Success;

@@ -109,7 +109,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             var adapter = new ProxyDiagnosticSourceMethodAdapter();
 
             var listener = new Listener4();
-            var value = new { ID = 17, PersOn = new Person() { Name = "Bill" }};
+            var value = new { ID = 17, PersOn = new Person() { Name = "Bill" } };
             var method = GetMethodInfo<Listener4>(l => l.Listen(0, null));
 
             // Act

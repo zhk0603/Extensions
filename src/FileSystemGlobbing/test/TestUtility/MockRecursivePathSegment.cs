@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.FileSystemGlobbing.Tests.PatternContexts
 {
     internal class MockRecursivePathSegment : IPathSegment
     {
-        public bool CanProduceStem {  get { return false; } }
+        public bool CanProduceStem { get { return false; } }
 
         public bool Match(string value)
         {

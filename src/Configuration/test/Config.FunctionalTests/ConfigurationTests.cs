@@ -102,7 +102,7 @@ CommonKey3:CommonKey4=IniValue6";
 
             Assert.Throws<FileNotFoundException>(() => configurationBuilder.Build());
         }
-        
+
         [Fact]
         public void CanHandleExceptionIfFileNotFound()
         {
@@ -689,7 +689,7 @@ IniKey1=IniValue2");
             Assert.Equal("IniValue1", config["Key"]);
             Assert.True(token.HasChanged);
         }
-        
+
         [Theory]
         [Flaky("File watching is flaky (particularly on non windows.", FlakyOn.All)]
         [InlineData(false)]

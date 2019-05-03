@@ -46,7 +46,7 @@ namespace Microsoft.Extensions.Configuration.UserSecrets
             var appData = Environment.GetEnvironmentVariable("APPDATA");
             var root = appData                                                                   // On Windows it goes to %APPDATA%\Microsoft\UserSecrets\
                        ?? Environment.GetEnvironmentVariable("HOME")                             // On Mac/Linux it goes to ~/.microsoft/usersecrets/
-                       ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) 
+                       ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                        ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
                        ?? Environment.GetEnvironmentVariable(userSecretsFallbackDir);            // this fallback is an escape hatch if everything else fails
 

@@ -493,7 +493,7 @@ namespace Microsoft.Extensions.Configuration
                 result = value;
                 return true;
             }
-  
+
             if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 if (string.IsNullOrEmpty(value))
@@ -502,7 +502,7 @@ namespace Microsoft.Extensions.Configuration
                 }
                 return TryConvertValue(Nullable.GetUnderlyingType(type), value, out result, out error);
             }
-  
+
             var converter = TypeDescriptor.GetConverter(type);
             if (converter.CanConvertFrom(typeof(string)))
             {
@@ -516,7 +516,7 @@ namespace Microsoft.Extensions.Configuration
                 }
                 return true;
             }
-  
+
             return false;
         }
 
@@ -535,12 +535,12 @@ namespace Microsoft.Extensions.Configuration
         private static Type FindOpenGenericInterface(Type expected, Type actual)
         {
             var actualTypeInfo = actual.GetTypeInfo();
-            if(actualTypeInfo.IsGenericType && 
+            if (actualTypeInfo.IsGenericType &&
                 actual.GetGenericTypeDefinition() == expected)
             {
                 return actual;
-            } 
-             
+            }
+
             var interfaces = actualTypeInfo.ImplementedInterfaces;
             foreach (var interfaceType in interfaces)
             {

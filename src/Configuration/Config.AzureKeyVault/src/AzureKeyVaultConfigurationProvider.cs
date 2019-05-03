@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.Configuration.AzureKeyVault
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             if (reloadInterval != null && reloadInterval.Value <= TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException (nameof(reloadInterval), reloadInterval, nameof(reloadInterval) + " must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(reloadInterval), reloadInterval, nameof(reloadInterval) + " must be positive.");
             }
 
             _pollingTask = null;

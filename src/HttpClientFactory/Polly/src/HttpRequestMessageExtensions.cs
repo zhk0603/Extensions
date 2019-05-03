@@ -13,7 +13,7 @@ namespace Polly
     public static class HttpRequestMessageExtensions
     {
         internal static readonly string PolicyExecutionContextKey = "PolicyExecutionContext";
-        
+
         /// <summary>
         /// Gets the <see cref="Context"/> associated with the provided <see cref="HttpRequestMessage"/>.
         /// </summary>

@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.FileSystemGlobbing
         /// <returns>True when <see cref="Equals(FilePatternMatch)" /></returns>
         public override bool Equals(object obj)
         {
-            return Equals((FilePatternMatch) obj);
+            return Equals((FilePatternMatch)obj);
         }
 
         /// <summary>

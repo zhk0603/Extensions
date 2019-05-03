@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var serviceCollection = new ServiceCollection();
 
             // Act1
-            serviceCollection.AddHttpClient(); 
+            serviceCollection.AddHttpClient();
 
             var services = serviceCollection.BuildServiceProvider();
             var options = services.GetRequiredService<IOptionsMonitor<HttpClientFactoryOptions>>();
@@ -430,7 +430,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Act
-            serviceCollection.AddHttpClient("test").AddTypedClient<TestTypedClient>((c,s) =>
+            serviceCollection.AddHttpClient("test").AddTypedClient<TestTypedClient>((c, s) =>
             {
                 Assert.Equal("http://example.com/", c.BaseAddress.AbsoluteUri);
                 c.BaseAddress = new Uri("http://example2.com");
@@ -519,7 +519,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Act1
-            serviceCollection.AddHttpClient<TestTypedClient>((s,c) =>
+            serviceCollection.AddHttpClient<TestTypedClient>((s, c) =>
             {
                 var options = s.GetRequiredService<IOptions<OtherTestOptions>>();
                 c.BaseAddress = new Uri(options.Value.BaseAddress);
@@ -529,7 +529,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Act2
             var client = services.GetRequiredService<TestTypedClient>();
-        
+
             // Assert
             Assert.Equal("http://example.com/", client.HttpClient.BaseAddress.AbsoluteUri);
         }
@@ -546,7 +546,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Act1
-            serviceCollection.AddHttpClient<ITestTypedClient, TestTypedClient>((s,c) =>
+            serviceCollection.AddHttpClient<ITestTypedClient, TestTypedClient>((s, c) =>
             {
                 var options = s.GetRequiredService<IOptions<OtherTestOptions>>();
                 c.BaseAddress = new Uri(options.Value.BaseAddress);
@@ -556,7 +556,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Act2
             var client = services.GetRequiredService<ITestTypedClient>();
-        
+
             // Assert
             Assert.Equal("http://example.com/", client.HttpClient.BaseAddress.AbsoluteUri);
         }
@@ -573,7 +573,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Act1
-            serviceCollection.AddHttpClient<TestTypedClient>("test", (s,c) =>
+            serviceCollection.AddHttpClient<TestTypedClient>("test", (s, c) =>
             {
                 var options = s.GetRequiredService<IOptions<OtherTestOptions>>();
                 c.BaseAddress = new Uri(options.Value.BaseAddress);
@@ -583,7 +583,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Act2
             var client = services.GetRequiredService<TestTypedClient>();
-        
+
             // Assert
             Assert.Equal("http://example.com/", client.HttpClient.BaseAddress.AbsoluteUri);
         }
@@ -600,7 +600,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Act1
-            serviceCollection.AddHttpClient<ITestTypedClient, TestTypedClient>("test", (s,c) =>
+            serviceCollection.AddHttpClient<ITestTypedClient, TestTypedClient>("test", (s, c) =>
             {
                 var options = s.GetRequiredService<IOptions<OtherTestOptions>>();
                 c.BaseAddress = new Uri(options.Value.BaseAddress);
@@ -610,7 +610,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Act2
             var client = services.GetRequiredService<ITestTypedClient>();
-        
+
             // Assert
             Assert.Equal("http://example.com/", client.HttpClient.BaseAddress.AbsoluteUri);
         }

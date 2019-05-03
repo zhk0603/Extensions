@@ -17,13 +17,13 @@ namespace Microsoft.Extensions.Logging.AzureAppServices.Test
             int maxFileSize = 32_000,
             int maxRetainedFiles = 100)
             : base(new OptionsWrapperMonitor<AzureFileLoggerOptions>(new AzureFileLoggerOptions()
-        {
-            LogDirectory = path,
-            FileName = fileName,
-            FileSizeLimit = maxFileSize,
-            RetainedFileCountLimit = maxRetainedFiles,
-            IsEnabled = true
-        }))
+            {
+                LogDirectory = path,
+                FileName = fileName,
+                FileSizeLimit = maxFileSize,
+                RetainedFileCountLimit = maxRetainedFiles,
+                IsEnabled = true
+            }))
         {
         }
 

@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </para>
         /// </remarks>
         public static IHttpClientBuilder AddPolicyHandler(
-            this IHttpClientBuilder builder, 
+            this IHttpClientBuilder builder,
             Func<HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> policySelector)
         {
             if (builder == null)
@@ -213,7 +213,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </para>
         /// </remarks>
         public static IHttpClientBuilder AddTransientHttpErrorPolicy(
-            this IHttpClientBuilder builder, 
+            this IHttpClientBuilder builder,
             Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> configurePolicy)
         {
             if (builder == null)
@@ -225,7 +225,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(configurePolicy));
             }
-            
+
             var policyBuilder = HttpPolicyExtensions.HandleTransientHttpError();
 
             // Important - cache policy instances so that they are singletons per handler.
@@ -274,7 +274,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 return new PolicyHttpMessageHandler((request) =>
                 {
                     var key = keySelector(request);
-                    
+
                     if (registry.TryGet<IAsyncPolicy<HttpResponseMessage>>(key, out var policy))
                     {
                         return policy;

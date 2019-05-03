@@ -425,13 +425,17 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
         {
             switch (index)
             {
-                case 0: generator.Emit(OpCodes.Ldloc_0);
+                case 0:
+                    generator.Emit(OpCodes.Ldloc_0);
                     return;
-                case 1: generator.Emit(OpCodes.Ldloc_1);
+                case 1:
+                    generator.Emit(OpCodes.Ldloc_1);
                     return;
-                case 2: generator.Emit(OpCodes.Ldloc_2);
+                case 2:
+                    generator.Emit(OpCodes.Ldloc_2);
                     return;
-                case 3: generator.Emit(OpCodes.Ldloc_3);
+                case 3:
+                    generator.Emit(OpCodes.Ldloc_3);
                     return;
             }
 
@@ -448,13 +452,17 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
         {
             switch (index)
             {
-                case 0: generator.Emit(OpCodes.Stloc_0);
+                case 0:
+                    generator.Emit(OpCodes.Stloc_0);
                     return;
-                case 1: generator.Emit(OpCodes.Stloc_1);
+                case 1:
+                    generator.Emit(OpCodes.Stloc_1);
                     return;
-                case 2: generator.Emit(OpCodes.Stloc_2);
+                case 2:
+                    generator.Emit(OpCodes.Stloc_2);
                     return;
-                case 3: generator.Emit(OpCodes.Stloc_3);
+                case 3:
+                    generator.Emit(OpCodes.Stloc_3);
                     return;
             }
 

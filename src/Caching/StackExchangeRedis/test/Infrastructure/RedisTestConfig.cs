@@ -164,16 +164,16 @@ namespace Microsoft.Extensions.Caching.StackExchangeRedis
                     {
                         var serverArgs = "--port " + RedisPort + " --maxheap 512MB";
                         var processInfo = new ProcessStartInfo
-                            {
-                                // start the process in users TMP dir (a .dat file will be created but will be removed when the server dies)
-                                Arguments = serverArgs,
-                                WorkingDirectory = tempPath,
-                                CreateNoWindow = true,
-                                FileName = tempRedisServerFullPath,
-                                RedirectStandardError = true,
-                                RedirectStandardOutput = true,
-                                UseShellExecute = false,
-                            };
+                        {
+                            // start the process in users TMP dir (a .dat file will be created but will be removed when the server dies)
+                            Arguments = serverArgs,
+                            WorkingDirectory = tempPath,
+                            CreateNoWindow = true,
+                            FileName = tempRedisServerFullPath,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false,
+                        };
                         try
                         {
                             _redisServerProcess = Process.Start(processInfo);

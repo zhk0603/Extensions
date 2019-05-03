@@ -115,7 +115,7 @@ namespace Microsoft.Extensions.Hosting.Internal
             providerMock.Verify(c => c.Dispose(), Times.AtLeastOnce());
         }
 
-        private class AsyncDisposableService: IAsyncDisposable
+        private class AsyncDisposableService : IAsyncDisposable
         {
             public bool DisposeAsyncCalled { get; set; }
 

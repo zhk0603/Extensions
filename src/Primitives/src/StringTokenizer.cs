@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.Primitives
     /// <summary>
     /// Tokenizes a <see cref="string"/> into <see cref="StringSegment"/>s.
     /// </summary>
-    public readonly struct StringTokenizer :  IEnumerable<StringSegment>
+    public readonly struct StringTokenizer : IEnumerable<StringSegment>
     {
         private readonly StringSegment _value;
         private readonly char[] _separators;
@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.Primitives
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.value);
             }
-            
+
             if (separators == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.separators);

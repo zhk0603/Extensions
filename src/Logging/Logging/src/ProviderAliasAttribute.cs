@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.Logging
     /// Defines alias for <see cref="ILoggerProvider"/> implementation to be used in filtering rules.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class ProviderAliasAttribute: Attribute
+    public class ProviderAliasAttribute : Attribute
     {
         public ProviderAliasAttribute(string alias)
         {

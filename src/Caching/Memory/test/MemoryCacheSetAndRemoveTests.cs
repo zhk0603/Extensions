@@ -646,7 +646,7 @@ namespace Microsoft.Extensions.Caching.Memory
         public void TryGetValueFromCacheWithNullKeyThrows()
         {
             var cache = CreateCache();
-            Assert.Throws<ArgumentNullException>(() => cache.TryGetValue(null,out long result));
+            Assert.Throws<ArgumentNullException>(() => cache.TryGetValue(null, out long result));
         }
 
         [Fact]
@@ -654,7 +654,8 @@ namespace Microsoft.Extensions.Caching.Memory
         {
             var cache = CreateCache();
             Assert.Throws<ArgumentNullException>(() => cache.GetOrCreate<object>(null, null))
-;       }
+;
+        }
 
         [Fact]
         public async Task GetOrCreateAsyncFromCacheWithNullKeyThrows()

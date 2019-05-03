@@ -395,7 +395,7 @@ namespace Microsoft.Extensions.FileProviders
             Assert.False(jqueryValidate.IsDirectory);
             Assert.Equal("jquery.validate.js", jqueryValidate.Name);
             Assert.Null(jqueryValidate.PhysicalPath);
-            Assert.Equal(0, jqueryValidate.Length);          
+            Assert.Equal(0, jqueryValidate.Length);
         }
 
         [Theory]

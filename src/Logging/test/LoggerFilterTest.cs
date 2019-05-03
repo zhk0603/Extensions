@@ -404,7 +404,7 @@ namespace Microsoft.Extensions.Logging.Test
             var serviceProvider = new ServiceCollection()
                 .AddLogging(
                     builder => builder.AddConfiguration(new ConfigurationBuilder()
-                                                            .AddInMemoryCollection(new[] {new KeyValuePair<string, string>("logLevel:Default", "Error")})
+                                                            .AddInMemoryCollection(new[] { new KeyValuePair<string, string>("logLevel:Default", "Error") })
                                                             .Build())
                 )
                 .BuildServiceProvider();
@@ -420,7 +420,7 @@ namespace Microsoft.Extensions.Logging.Test
             var serviceProvider = new ServiceCollection()
                 .AddLogging(
                     builder => builder.AddConfiguration(new ConfigurationBuilder()
-                                                            .AddInMemoryCollection(new[] {new KeyValuePair<string, string>("LogLevel:default", "Error")})
+                                                            .AddInMemoryCollection(new[] { new KeyValuePair<string, string>("LogLevel:default", "Error") })
                                                             .Build())
                 )
                 .BuildServiceProvider();
@@ -435,7 +435,7 @@ namespace Microsoft.Extensions.Logging.Test
         {
             var options = new LoggerFilterOptions()
             {
-                Rules = { new LoggerFilterRule(providerName: null, categoryName: "*A*", logLevel: null, filter: null)}
+                Rules = { new LoggerFilterRule(providerName: null, categoryName: "*A*", logLevel: null, filter: null) }
             };
             var testSink1 = new TestSink();
             var loggerFactory = new LoggerFactory(new[]

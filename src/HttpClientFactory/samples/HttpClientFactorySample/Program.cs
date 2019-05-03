@@ -83,7 +83,7 @@ namespace HttpClientFactorySample
                     reg.Get<IAsyncPolicy<HttpResponseMessage>>("regular") :
                     reg.Get<IAsyncPolicy<HttpResponseMessage>>("long");
             })
-            
+
             // Build a policy that will handle exceptions, 408s, and 500s from the remote server
             .AddTransientHttpErrorPolicy(p => p.RetryAsync())
 

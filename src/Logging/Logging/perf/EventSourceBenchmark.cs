@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.EventSource;
 namespace Microsoft.Extensions.Logging.Performance
 {
     [AspNetCoreBenchmark]
-    public class EventSourceBenchmark: LoggingBenchmarkBase
+    public class EventSourceBenchmark : LoggingBenchmarkBase
     {
         private ILogger _logger;
         private ILogger _noopLogger;

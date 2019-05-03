@@ -129,7 +129,7 @@ namespace Microsoft.Extensions.DependencyInjection.Tests
                 exception.Message);
         }
 
-        private class AsyncDisposable: IFakeService, IAsyncDisposable
+        private class AsyncDisposable : IFakeService, IAsyncDisposable
         {
             public bool DisposeAsyncCalled { get; private set; }
 
@@ -140,7 +140,7 @@ namespace Microsoft.Extensions.DependencyInjection.Tests
             }
         }
 
-        private class SyncAsyncDisposable: IFakeService, IAsyncDisposable, IDisposable
+        private class SyncAsyncDisposable : IFakeService, IAsyncDisposable, IDisposable
         {
             public bool DisposeCalled { get; private set; }
             public bool DisposeAsyncCalled { get; private set; }

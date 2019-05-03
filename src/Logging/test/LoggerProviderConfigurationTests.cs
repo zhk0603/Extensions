@@ -69,8 +69,8 @@ namespace Microsoft.Extensions.Logging.Test
             var serviceProvider = new ServiceCollection()
                 .AddLogging(
                     builder => builder
-                        .AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new [] { Pair("TestLogger:Key", "Value1") }).Build())
-                        .AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new [] { Pair("Microsoft.Extensions.Logging.Test.TestLoggerProvider:Key", "Value2") }).Build()))
+                        .AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new[] { Pair("TestLogger:Key", "Value1") }).Build())
+                        .AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new[] { Pair("Microsoft.Extensions.Logging.Test.TestLoggerProvider:Key", "Value2") }).Build()))
                 .BuildServiceProvider();
 
             var providerConfiguration = serviceProvider.GetRequiredService<ILoggerProviderConfiguration<TestLoggerProvider>>();

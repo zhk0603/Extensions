@@ -93,33 +93,33 @@ namespace Internal.AspNetCore.Analyzers
             switch (symbol)
             {
                 case IFieldSymbol fieldSymbol:
-                {
-                    CheckType(context, fieldSymbol.Type, fieldSymbol.DeclaringSyntaxReferences);
-                    break;
-                }
-                case IPropertySymbol propertySymbol:
-                {
-                    CheckType(context, propertySymbol.Type, propertySymbol.DeclaringSyntaxReferences);
-                    break;
-                }
-                case IMethodSymbol methodSymbol:
-                {
-                    // Skip compiler generated members that we already explicitly check
-                    switch (methodSymbol.MethodKind)
                     {
-                        case MethodKind.EventAdd:
-                        case MethodKind.EventRaise:
-                        case MethodKind.EventRemove:
-                        case MethodKind.PropertyGet:
-                        case MethodKind.PropertySet:
-                        case MethodKind.DelegateInvoke:
-                        case MethodKind.Ordinary when methodSymbol.ContainingType.TypeKind == TypeKind.Delegate:
-                            return;
+                        CheckType(context, fieldSymbol.Type, fieldSymbol.DeclaringSyntaxReferences);
+                        break;
                     }
+                case IPropertySymbol propertySymbol:
+                    {
+                        CheckType(context, propertySymbol.Type, propertySymbol.DeclaringSyntaxReferences);
+                        break;
+                    }
+                case IMethodSymbol methodSymbol:
+                    {
+                        // Skip compiler generated members that we already explicitly check
+                        switch (methodSymbol.MethodKind)
+                        {
+                            case MethodKind.EventAdd:
+                            case MethodKind.EventRaise:
+                            case MethodKind.EventRemove:
+                            case MethodKind.PropertyGet:
+                            case MethodKind.PropertySet:
+                            case MethodKind.DelegateInvoke:
+                            case MethodKind.Ordinary when methodSymbol.ContainingType.TypeKind == TypeKind.Delegate:
+                                return;
+                        }
 
-                    CheckMethod(context, methodSymbol);
-                    break;
-                }
+                        CheckMethod(context, methodSymbol);
+                        break;
+                    }
                 case IEventSymbol eventSymbol:
                     CheckType(context, eventSymbol.Type, eventSymbol.DeclaringSyntaxReferences);
                     break;

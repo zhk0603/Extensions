@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Extensions.Logging.Performance
 {
     [AspNetCoreBenchmark]
-    public class LoggingOverheadBenchmark: LoggingBenchmarkBase
+    public class LoggingOverheadBenchmark : LoggingBenchmarkBase
     {
         private ILogger _logger;
 

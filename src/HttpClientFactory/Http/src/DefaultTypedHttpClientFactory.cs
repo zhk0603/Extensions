@@ -51,9 +51,9 @@ namespace Microsoft.Extensions.Http
             private object _lock;
 
             public ObjectFactory Activator => LazyInitializer.EnsureInitialized(
-                ref _activator, 
-                ref _initialized, 
-                ref _lock, 
+                ref _activator,
+                ref _initialized,
+                ref _lock,
                 _createActivator);
         }
     }

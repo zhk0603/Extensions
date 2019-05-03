@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.Http
                 var message = Resources.FormatHttpMessageHandlerBuilder_PrimaryHandlerIsNull(nameof(PrimaryHandler));
                 throw new InvalidOperationException(message);
             }
-            
+
             return CreateHandlerPipeline(PrimaryHandler, AdditionalHandlers);
         }
     }

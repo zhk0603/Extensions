@@ -284,13 +284,13 @@ namespace Microsoft.Extensions.Logging.Test
         public void WriteAllLevelsDisabledColors_LogsNoColors()
         {
             // Arrange
-            var t = SetUp(new ConsoleLoggerOptions { DisableColors = true});
+            var t = SetUp(new ConsoleLoggerOptions { DisableColors = true });
             var logger = t.Logger;
             var sink = t.Sink;
 
             int levelSequence;
             // Act
-            for (levelSequence = (int) LogLevel.Trace; levelSequence < (int) LogLevel.None; levelSequence++)
+            for (levelSequence = (int)LogLevel.Trace; levelSequence < (int)LogLevel.None; levelSequence++)
             {
                 logger.Log((LogLevel)levelSequence, 0, _state, null, _defaultFormatter);
             }
@@ -309,7 +309,7 @@ namespace Microsoft.Extensions.Logging.Test
         public void WriteCore_LogsCorrectTimestamp(LogLevel level, string prefix)
         {
             // Arrange
-            var t = SetUp(new ConsoleLoggerOptions { TimestampFormat = "yyyyMMddHHmmss "});
+            var t = SetUp(new ConsoleLoggerOptions { TimestampFormat = "yyyyMMddHHmmss " });
             var logger = t.Logger;
             var sink = t.Sink;
             var ex = new Exception("Exception message" + Environment.NewLine + "with a second line");
@@ -748,7 +748,7 @@ namespace Microsoft.Extensions.Logging.Test
 
             // Act & Assert
             Assert.Null(logger.Options.TimestampFormat);
-            monitor.Set(new ConsoleLoggerOptions() { TimestampFormat = "yyyyMMddHHmmss"});
+            monitor.Set(new ConsoleLoggerOptions() { TimestampFormat = "yyyyMMddHHmmss" });
             Assert.Equal("yyyyMMddHHmmss", logger.Options.TimestampFormat);
         }
 
@@ -810,7 +810,7 @@ namespace Microsoft.Extensions.Logging.Test
 
             // Act & Assert
             Assert.Equal(LogLevel.None, logger.Options.LogToStandardErrorThreshold);
-            monitor.Set(new ConsoleLoggerOptions() { LogToStandardErrorThreshold = LogLevel.Error});
+            monitor.Set(new ConsoleLoggerOptions() { LogToStandardErrorThreshold = LogLevel.Error });
             Assert.Equal(LogLevel.Error, logger.Options.LogToStandardErrorThreshold);
         }
 

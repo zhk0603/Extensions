@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.Logging.AzureAppServices.Test
         public async Task IncludesScopes()
         {
             var provider = new TestBatchingLoggingProvider(includeScopes: true);
-            var factory = new LoggerFactory(new [] { provider });
+            var factory = new LoggerFactory(new[] { provider });
             var logger = factory.CreateLogger("Cat");
 
             await provider.IntervalControl.Pause;
@@ -103,7 +103,7 @@ namespace Microsoft.Extensions.Logging.AzureAppServices.Test
             Assert.Equal("1 message(s) dropped because of queue size limit. Increase the queue size or decrease logging verbosity to avoid this." + _nl, provider.Batches[0][1].Message);
         }
 
-        private class TestBatchingLoggingProvider: BatchingLoggerProvider
+        private class TestBatchingLoggingProvider : BatchingLoggerProvider
         {
             public List<LogMessage[]> Batches { get; } = new List<LogMessage[]>();
             public ManualIntervalControl IntervalControl { get; } = new ManualIntervalControl();

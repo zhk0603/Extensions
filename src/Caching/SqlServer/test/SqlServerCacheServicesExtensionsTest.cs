@@ -35,7 +35,8 @@ namespace Microsoft.Extensions.Caching.SqlServer
             services.AddScoped(typeof(IDistributedCache), sp => Mock.Of<IDistributedCache>());
 
             // Act
-            services.AddDistributedSqlServerCache(options => {
+            services.AddDistributedSqlServerCache(options =>
+            {
                 options.ConnectionString = "Fake";
                 options.SchemaName = "Fake";
                 options.TableName = "Fake";

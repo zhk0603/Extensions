@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.Logging
         public static ILoggingBuilder AddFilter(this ILoggingBuilder builder, string category, LogLevel level) =>
             builder.ConfigureFilter(options => options.AddFilter(category, level));
 
-        public static ILoggingBuilder AddFilter<T>(this ILoggingBuilder builder, string category, LogLevel level) where T: ILoggerProvider =>
+        public static ILoggingBuilder AddFilter<T>(this ILoggingBuilder builder, string category, LogLevel level) where T : ILoggerProvider =>
             builder.ConfigureFilter(options => options.AddFilter<T>(category, level));
 
         public static ILoggingBuilder AddFilter(this ILoggingBuilder builder, string category, Func<LogLevel, bool> levelFilter) =>
@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.Logging
         public static LoggerFilterOptions AddFilter(this LoggerFilterOptions builder, string category, LogLevel level) =>
             AddRule(builder, category: category, level: level);
 
-        public static LoggerFilterOptions AddFilter<T>(this LoggerFilterOptions builder, string category, LogLevel level) where T: ILoggerProvider =>
+        public static LoggerFilterOptions AddFilter<T>(this LoggerFilterOptions builder, string category, LogLevel level) where T : ILoggerProvider =>
             AddRule(builder, type: typeof(T).FullName, category: category, level: level);
 
         public static LoggerFilterOptions AddFilter(this LoggerFilterOptions builder, string category, Func<LogLevel, bool> levelFilter) =>

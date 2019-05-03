@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
     {
         internal object DefaultValue { get; }
 
-        public ConstantCallSite(Type serviceType, object defaultValue): base(ResultCache.None)
+        public ConstantCallSite(Type serviceType, object defaultValue) : base(ResultCache.None)
         {
             if (defaultValue != null && !serviceType.IsInstanceOfType(defaultValue))
             {

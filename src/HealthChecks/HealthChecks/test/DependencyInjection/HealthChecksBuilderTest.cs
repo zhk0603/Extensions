@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             var services = CreateServices();
-            services.AddHealthChecks().AddCheck("test", failureStatus: HealthStatus.Degraded,tags: new[] { "tag", }, instance: instance);
+            services.AddHealthChecks().AddCheck("test", failureStatus: HealthStatus.Degraded, tags: new[] { "tag", }, instance: instance);
 
             var serviceProvider = services.BuildServiceProvider();
 

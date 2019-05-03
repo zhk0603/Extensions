@@ -227,7 +227,7 @@ namespace Microsoft.Extensions.Configuration.KeyPerFile.Test
     class TestFileProvider : IFileProvider
     {
         IDirectoryContents _contents;
-        
+
         public TestFileProvider(params IFileInfo[] files)
         {
             _contents = new TestDirectoryContents(files);
@@ -291,7 +291,7 @@ namespace Microsoft.Extensions.Configuration.KeyPerFile.Test
 
         public Stream CreateReadStream()
         {
-            if(IsDirectory)
+            if (IsDirectory)
             {
                 throw new InvalidOperationException("Cannot create stream from directory");
             }

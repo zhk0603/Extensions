@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.Options
         /// Constructor that takes the <see cref="IConfiguration"/> instance to bind against.
         /// </summary>
         /// <param name="config">The <see cref="IConfiguration"/> instance.</param>
-        public ConfigureFromConfigurationOptions(IConfiguration config) 
+        public ConfigureFromConfigurationOptions(IConfiguration config)
             : base(options => ConfigurationBinder.Bind(config, options))
         {
             if (config == null)

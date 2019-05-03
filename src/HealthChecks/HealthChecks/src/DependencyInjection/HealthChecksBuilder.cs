@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         public IServiceCollection Services { get; }
-        
+
         public IHealthChecksBuilder Add(HealthCheckRegistration registration)
         {
             if (registration == null)

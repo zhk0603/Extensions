@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.Logging.Test
             var factory = new LoggerFactory();
             factory.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => ((ILoggerFactory) factory).AddProvider(CreateProvider()));
+            Assert.Throws<ObjectDisposedException>(() => ((ILoggerFactory)factory).AddProvider(CreateProvider()));
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace Microsoft.Extensions.Logging.Test
         public void CallsSetScopeProvider_OnSupportedProviders()
         {
             var loggerProvider = new ExternalScopeLoggerProvider();
-            var loggerFactory = new LoggerFactory(new [] { loggerProvider });
+            var loggerFactory = new LoggerFactory(new[] { loggerProvider });
 
             var logger = loggerFactory.CreateLogger("Logger");
 
@@ -124,7 +124,7 @@ namespace Microsoft.Extensions.Logging.Test
         public void BeginScope_ReturnsExternalSourceTokenDirectly()
         {
             var loggerProvider = new ExternalScopeLoggerProvider();
-            var loggerFactory = new LoggerFactory(new [] { loggerProvider });
+            var loggerFactory = new LoggerFactory(new[] { loggerProvider });
 
             var logger = loggerFactory.CreateLogger("Logger");
 
@@ -147,7 +147,7 @@ namespace Microsoft.Extensions.Logging.Test
         {
             var loggerProvider = new ExternalScopeLoggerProvider();
             var loggerProvider2 = new InternalScopeLoggerProvider();
-            var loggerFactory = new LoggerFactory(new ILoggerProvider[] { loggerProvider, loggerProvider2});
+            var loggerFactory = new LoggerFactory(new ILoggerProvider[] { loggerProvider, loggerProvider2 });
 
             var logger = loggerFactory.CreateLogger("Logger");
 
@@ -186,7 +186,7 @@ namespace Microsoft.Extensions.Logging.Test
             var provider = new Mock<ILoggerProvider>();
             provider.Setup(p => p.Dispose()).Callback(() => disposed = true);
 
-            var factory = LoggerFactory.Create(builder => builder.Services.AddSingleton(_=> provider.Object));
+            var factory = LoggerFactory.Create(builder => builder.Services.AddSingleton(_ => provider.Object));
             factory.Dispose();
 
             Assert.True(disposed);

@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.Http.Performance
         private FakeLoggerProvider LoggerProvider { get; }
 
         [Benchmark(
-            Description = "logging on", 
+            Description = "logging on",
             OperationsPerInvoke = Iterations)]
         public async Task LoggingOn()
         {

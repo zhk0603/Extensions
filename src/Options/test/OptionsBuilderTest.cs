@@ -399,7 +399,7 @@ namespace Microsoft.Extensions.Options.Tests
             // Check for the error in any of the failures
             foreach (var error in errorsToMatch)
             {
-                Assert.True(e.Failures.FirstOrDefault(f => f.Contains(error)) != null, "Did not find: "+error);
+                Assert.True(e.Failures.FirstOrDefault(f => f.Contains(error)) != null, "Did not find: " + error);
             }
         }
 
@@ -545,7 +545,7 @@ namespace Microsoft.Extensions.Options.Tests
                 {
                     return ValidationResult.Success;
                 }
-                return new ValidationResult("Dep1 != "+Target, new string[] { "Dep1", Target });
+                return new ValidationResult("Dep1 != " + Target, new string[] { "Dep1", Target });
             }
         }
 

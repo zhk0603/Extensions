@@ -238,8 +238,8 @@ namespace Microsoft.JSInterop
             var invokableMethods = GetRequiredLoadedAssembly(assemblyName)
                 .GetExportedTypes()
                 .SelectMany(type => type.GetMethods(
-                    BindingFlags.Public | 
-                    BindingFlags.DeclaredOnly | 
+                    BindingFlags.Public |
+                    BindingFlags.DeclaredOnly |
                     BindingFlags.Instance |
                     BindingFlags.Static))
                 .Where(method => method.IsDefined(typeof(JSInvokableAttribute), inherit: false));

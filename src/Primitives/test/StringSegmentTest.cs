@@ -399,7 +399,7 @@ namespace Microsoft.Extensions.Primitives
         {
             Assert.False(StringSegment.IsNullOrEmpty("A"));
             Assert.False(StringSegment.IsNullOrEmpty("ABCDefg"));
-            Assert.False(StringSegment.IsNullOrEmpty(new StringSegment("A", 0 , 1)));
+            Assert.False(StringSegment.IsNullOrEmpty(new StringSegment("A", 0, 1)));
             Assert.False(StringSegment.IsNullOrEmpty(new StringSegment("ABCDefg", 3, 2)));
         }
 

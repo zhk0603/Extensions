@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.Primitives
             return new StringValues(values);
         }
 
-        public static implicit operator string (StringValues values)
+        public static implicit operator string(StringValues values)
         {
             return values.GetStringValue();
         }
@@ -501,7 +501,7 @@ namespace Microsoft.Extensions.Primitives
             {
                 return Equals(this, (string)obj);
             }
-            
+
             if (obj is string[])
             {
                 return Equals(this, (string[])obj);
@@ -551,7 +551,7 @@ namespace Microsoft.Extensions.Primitives
                     _current = null;
                     _values = Unsafe.As<string[]>(value);
                 }
-               _index = 0;
+                _index = 0;
             }
 
             public Enumerator(ref StringValues values) : this(values._values)

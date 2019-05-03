@@ -210,7 +210,7 @@ namespace Microsoft.Extensions.DependencyInjection.Tests
             var service = CreateServiceProvider(serviceCollection).GetService<IEnumerable<IFakeOuterService>>();
         }
 
-        private class FakeMultipleServiceWithIEnumerableDependency: IFakeMultipleService
+        private class FakeMultipleServiceWithIEnumerableDependency : IFakeMultipleService
         {
             public FakeMultipleServiceWithIEnumerableDependency(IEnumerable<IFakeService> fakeServices)
             {

@@ -33,7 +33,8 @@ namespace Microsoft.Extensions.Configuration
             {
                 _changeTokenRegistration = ChangeToken.OnChange(
                     () => Source.FileProvider.Watch(Source.Path),
-                    () => {
+                    () =>
+                    {
                         Thread.Sleep(Source.ReloadDelay);
                         Load(reload: true);
                     });
@@ -44,7 +45,7 @@ namespace Microsoft.Extensions.Configuration
         /// The source settings for this provider.
         /// </summary>
         public FileConfigurationSource Source { get; }
-        
+
         /// <summary>
         /// Generates a string representing this provider name and relevant details.
         /// </summary>

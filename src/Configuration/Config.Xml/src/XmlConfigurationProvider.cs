@@ -136,7 +136,7 @@ namespace Microsoft.Extensions.Configuration.Xml
         private static string GetLineInfo(XmlReader reader)
         {
             var lineInfo = reader as IXmlLineInfo;
-            return lineInfo == null ?  string.Empty :
+            return lineInfo == null ? string.Empty :
                 Resources.FormatMsg_LineInfo(lineInfo.LineNumber, lineInfo.LinePosition);
         }
 

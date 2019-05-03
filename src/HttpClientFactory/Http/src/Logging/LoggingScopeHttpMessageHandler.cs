@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.Http.Logging
                 return response;
             }
         }
-        
+
         private static class Log
         {
             public static class EventIds
@@ -59,8 +59,8 @@ namespace Microsoft.Extensions.Http.Logging
             private static readonly Func<ILogger, HttpMethod, Uri, IDisposable> _beginRequestPipelineScope = LoggerMessage.DefineScope<HttpMethod, Uri>("HTTP {HttpMethod} {Uri}");
 
             private static readonly Action<ILogger, HttpMethod, Uri, Exception> _requestPipelineStart = LoggerMessage.Define<HttpMethod, Uri>(
-                LogLevel.Information, 
-                EventIds.PipelineStart, 
+                LogLevel.Information,
+                EventIds.PipelineStart,
                 "Start processing HTTP request {HttpMethod} {Uri}");
 
             private static readonly Action<ILogger, double, HttpStatusCode, Exception> _requestPipelineEnd = LoggerMessage.Define<double, HttpStatusCode>(

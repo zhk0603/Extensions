@@ -37,7 +37,8 @@ namespace Microsoft.Extensions.Configuration.Json
             return _data;
         }
 
-        private void VisitElement(JsonElement element) {
+        private void VisitElement(JsonElement element)
+        {
             foreach (var property in element.EnumerateObject())
             {
                 EnterContext(property.Name);
@@ -48,14 +49,16 @@ namespace Microsoft.Extensions.Configuration.Json
 
         private void VisitValue(JsonElement value)
         {
-            switch (value.Type) {
+            switch (value.Type)
+            {
                 case JsonValueType.Object:
                     VisitElement(value);
                     break;
 
                 case JsonValueType.Array:
                     var index = 0;
-                    foreach (var arrayElement in value.EnumerateArray()) {
+                    foreach (var arrayElement in value.EnumerateArray())
+                    {
                         EnterContext(index.ToString());
                         VisitValue(arrayElement);
                         ExitContext();

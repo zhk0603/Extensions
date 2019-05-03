@@ -141,7 +141,7 @@ namespace Microsoft.Extensions.Logging.Testing.Tests
             });
 
         [Fact]
-        public  Task TestLogEnumerateFilenamesToAvoidCollisions() =>
+        public Task TestLogEnumerateFilenamesToAvoidCollisions() =>
             RunTestLogFunctionalTest((tempDir) =>
             {
                 var logger = LoggerFactory.CreateLogger("Test");

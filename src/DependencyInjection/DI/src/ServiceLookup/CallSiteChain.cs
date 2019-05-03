@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 {
     internal class CallSiteChain
     {
-        private readonly Dictionary<Type,ChainItemInfo> _callSiteChain;
+        private readonly Dictionary<Type, ChainItemInfo> _callSiteChain;
 
         public CallSiteChain()
         {

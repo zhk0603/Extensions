@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.Logging.Performance
             _logger = services.BuildServiceProvider().GetService<ILoggerFactory>().CreateLogger("Logger");
         }
 
-        public class MessageFormattingLogger: ILogger
+        public class MessageFormattingLogger : ILogger
         {
             public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {

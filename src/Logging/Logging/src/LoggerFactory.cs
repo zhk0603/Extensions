@@ -220,7 +220,7 @@ namespace Microsoft.Extensions.Logging
             public bool ShouldDispose;
         }
 
-        private class DisposingLoggerFactory: ILoggerFactory
+        private class DisposingLoggerFactory : ILoggerFactory
         {
             private readonly ILoggerFactory _loggerFactory;
 

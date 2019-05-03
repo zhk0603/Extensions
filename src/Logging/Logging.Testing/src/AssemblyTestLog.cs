@@ -235,7 +235,7 @@ namespace Microsoft.Extensions.Logging.Testing
                         {
                             Directory.Delete(assemblyBaseDirectory, recursive: true);
                         }
-                        catch {}
+                        catch { }
                     }
                 }
                 return log;

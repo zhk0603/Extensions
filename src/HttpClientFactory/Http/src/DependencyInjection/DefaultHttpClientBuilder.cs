@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public DefaultHttpClientBuilder(IServiceCollection services, string name)
         {
             Services = services;
-            Name = name; 
+            Name = name;
         }
 
         public string Name { get; }

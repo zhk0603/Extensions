@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.Primitives
         {
             return StringSegment.Compare(x, y, Comparison);
         }
-		
+
         public bool Equals(StringSegment x, StringSegment y)
         {
             return StringSegment.Equals(x, y, Comparison);

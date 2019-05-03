@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.Http.Performance
         public HttpMessageHandler Handler { get; }
 
         [Benchmark(
-            Description = "use IHttpClientFactory", 
+            Description = "use IHttpClientFactory",
             OperationsPerInvoke = Iterations)]
         public async Task CreateClient()
         {

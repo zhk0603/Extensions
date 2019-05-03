@@ -18,8 +18,10 @@ namespace Microsoft.Extensions.DependencyInjection.Performance
         private ServiceProviderMode _mode;
 
         [Params("Expressions", "Dynamic", "Runtime", "ILEmit")]
-        public string Mode {
-            set {
+        public string Mode
+        {
+            set
+            {
                 _mode = (ServiceProviderMode)Enum.Parse(typeof(ServiceProviderMode), value);
             }
         }

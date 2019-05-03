@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.Http
             {
                 return null;
             });
-            
+
             var expected = new HttpResponseMessage();
 
             // Act
@@ -117,7 +117,7 @@ namespace Microsoft.Extensions.Http
 
             // Assert
             Assert.Equal(
-                "The 'policySelector' function must return a non-null policy instance. To create a policy that takes no action, use 'Policy.NoOpAsync<HttpResponseMessage>()'.", 
+                "The 'policySelector' function must return a non-null policy instance. To create a policy that takes no action, use 'Policy.NoOpAsync<HttpResponseMessage>()'.",
                 exception.Message);
         }
 

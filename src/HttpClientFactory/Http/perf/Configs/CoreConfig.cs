@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.Http.Performance
 {
     public class CoreConfig : ManualConfig
     {
-        public CoreConfig() 
+        public CoreConfig()
             : this(Job.Core
                 .WithRemoveOutliers(false)
                 .With(new GcMode() { Server = true })

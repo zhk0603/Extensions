@@ -134,7 +134,8 @@ namespace Microsoft.Extensions.Logging.Test
                 .Returns(logger.Object);
 
             var factory = TestLoggerBuilder.Create(
-                builder => {
+                builder =>
+                {
                     builder.AddProvider(provider.Object);
                     // Disable all logs
                     builder.AddFilter(null, LogLevel.None);
@@ -159,7 +160,8 @@ namespace Microsoft.Extensions.Logging.Test
                 .Returns(logger.Object);
 
             var factory = TestLoggerBuilder.Create(
-                builder => {
+                builder =>
+                {
                     builder.AddProvider(provider.Object);
                     builder.Services.Configure<LoggerFilterOptions>(options => options.CaptureScopes = false);
                 });
@@ -187,7 +189,8 @@ namespace Microsoft.Extensions.Logging.Test
                 .Callback((IExternalScopeProvider scopeProvider) => externalScopeProvider = scopeProvider);
 
             var factory = TestLoggerBuilder.Create(
-                builder => {
+                builder =>
+                {
                     builder.AddProvider(provider.Object);
                     builder.Services.Configure<LoggerFilterOptions>(options => options.CaptureScopes = false);
                 });
@@ -197,7 +200,7 @@ namespace Microsoft.Extensions.Logging.Test
 
             using (newLogger.BeginScope("Scope"))
             {
-                externalScopeProvider.ForEachScope<object>((_, __) => scopeCount ++, null);
+                externalScopeProvider.ForEachScope<object>((_, __) => scopeCount++, null);
             }
 
             provider.Verify(p => p.CreateLogger("Logger"), Times.Once);
@@ -221,7 +224,8 @@ namespace Microsoft.Extensions.Logging.Test
                 .Callback((IExternalScopeProvider scopeProvider) => externalScopeProvider = scopeProvider);
 
             var factory = TestLoggerBuilder.Create(
-                builder => {
+                builder =>
+                {
                     builder.AddProvider(provider.Object);
                     builder.AddConfiguration(config);
                 });
@@ -231,7 +235,7 @@ namespace Microsoft.Extensions.Logging.Test
 
             using (newLogger.BeginScope("Scope"))
             {
-                externalScopeProvider.ForEachScope<object>((_, __) => scopeCount ++, null);
+                externalScopeProvider.ForEachScope<object>((_, __) => scopeCount++, null);
                 Assert.Equal(0, scopeCount);
             }
 
@@ -241,7 +245,7 @@ namespace Microsoft.Extensions.Logging.Test
             scopeCount = 0;
             using (newLogger.BeginScope("Scope"))
             {
-                externalScopeProvider.ForEachScope<object>((_, __) => scopeCount ++, null);
+                externalScopeProvider.ForEachScope<object>((_, __) => scopeCount++, null);
                 Assert.Equal(1, scopeCount);
             }
         }

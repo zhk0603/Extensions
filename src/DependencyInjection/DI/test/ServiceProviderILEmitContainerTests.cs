@@ -8,6 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection.Tests
     public class ServiceProviderILEmitContainerTests : ServiceProviderContainerTests
     {
         protected override IServiceProvider CreateServiceProvider(IServiceCollection collection) =>
-            collection.BuildServiceProvider(new ServiceProviderOptions() { Mode = ServiceProviderMode.ILEmit});
+            collection.BuildServiceProvider(new ServiceProviderOptions() { Mode = ServiceProviderMode.ILEmit });
     }
 }

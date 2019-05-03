@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Extensions.Logging.Test
 {
-    public class EventSourceLoggerTest: IDisposable
+    public class EventSourceLoggerTest : IDisposable
     {
         private ILoggerFactory _loggerFactory;
 
@@ -510,7 +510,7 @@ namespace Microsoft.Extensions.Logging.Test
             {
                 if (_loggingEventSource != null)
                 {
-                    EnableEvents(_loggingEventSource, settings.Level, settings.Keywords,  GetArguments(settings));
+                    EnableEvents(_loggingEventSource, settings.Level, settings.Keywords, GetArguments(settings));
                 }
                 else
                 {

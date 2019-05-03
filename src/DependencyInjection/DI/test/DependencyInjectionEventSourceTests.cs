@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     [Collection(nameof(EventSourceTests))]
-    public class DependencyInjectionEventSourceTests: IDisposable
+    public class DependencyInjectionEventSourceTests : IDisposable
     {
         private readonly TestEventListener _listener = new TestEventListener();
 

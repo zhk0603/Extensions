@@ -104,6 +104,6 @@ namespace Microsoft.Extensions.CommandLineUtils
         }
 
         private static bool ContainsWhitespace(string argument)
-            => argument.IndexOfAny(new [] { ' ', '\t', '\n' }) >= 0;
+            => argument.IndexOfAny(new[] { ' ', '\t', '\n' }) >= 0;
     }
 }

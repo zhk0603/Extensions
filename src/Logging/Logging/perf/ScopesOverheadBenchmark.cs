@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Extensions.Logging.Performance
 {
     [AspNetCoreBenchmark]
-    public class ScopesOverheadBenchmark: LoggingBenchmarkBase
+    public class ScopesOverheadBenchmark : LoggingBenchmarkBase
     {
         private ILogger _logger;
 
@@ -67,7 +67,7 @@ namespace Microsoft.Extensions.Logging.Performance
             _logger = services.BuildServiceProvider().GetService<ILoggerFactory>().CreateLogger("Logger");
         }
 
-        class LoggerProviderWithISupportExternalScope: LoggerProvider<NoopLogger>, ISupportExternalScope
+        class LoggerProviderWithISupportExternalScope : LoggerProvider<NoopLogger>, ISupportExternalScope
         {
             public void SetScopeProvider(IExternalScopeProvider scopeProvider)
             {

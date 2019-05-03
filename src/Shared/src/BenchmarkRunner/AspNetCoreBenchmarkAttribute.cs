@@ -52,7 +52,7 @@ namespace BenchmarkDotNet.Attributes
                         $"Known configurations: {string.Join(", ", ConfigTypes.Keys)}";
                     throw new InvalidOperationException(message);
                 }
-                
+
                 return (IConfig)Activator.CreateInstance(configType, Array.Empty<object>());
             }
         }

@@ -34,8 +34,8 @@ namespace Microsoft.Extensions.Logging.AzureAppServices.Test
 
         private static void AssertDefaultHeaders(HttpRequestMessage message)
         {
-            Assert.Equal(new[] {"AppendBlob"}, message.Headers.GetValues("x-ms-blob-type"));
-            Assert.Equal(new[] {"2016-05-31"}, message.Headers.GetValues("x-ms-version"));
+            Assert.Equal(new[] { "AppendBlob" }, message.Headers.GetValues("x-ms-blob-type"));
+            Assert.Equal(new[] { "2016-05-31" }, message.Headers.GetValues("x-ms-version"));
             Assert.NotNull(message.Headers.Date);
         }
 

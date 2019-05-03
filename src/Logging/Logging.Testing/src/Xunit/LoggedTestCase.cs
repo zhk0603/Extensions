@@ -32,6 +32,6 @@ namespace Microsoft.Extensions.Logging.Testing
             object[] constructorArguments,
             ExceptionAggregator aggregator,
             CancellationTokenSource cancellationTokenSource)
-            =>  new LoggedTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
+            => new LoggedTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
     }
 }

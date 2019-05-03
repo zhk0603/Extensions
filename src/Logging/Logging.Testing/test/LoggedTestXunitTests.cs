@@ -157,7 +157,7 @@ namespace Microsoft.Extensions.Logging.Testing.Tests
         {
             BeginScopeContext context = null;
             TestSink.ScopeStarted += ctx => context = ctx;
-            using (Logger.BeginScope("Scope")) {}
+            using (Logger.BeginScope("Scope")) { }
             Assert.Equal(TestSink.Scopes.Single(), context);
         }
     }
@@ -197,7 +197,8 @@ namespace Microsoft.Extensions.Logging.Testing.Tests
             {
                 TestOutputHelper.WriteLine("Test");
                 ITestOutputHelperIsInitialized = true;
-            } catch { }
+            }
+            catch { }
             SetupInvoked = true;
         }
     }

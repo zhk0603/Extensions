@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.Logging.Testing
     public class LoggedTestInvoker : XunitTestInvoker
     {
         private readonly ITestOutputHelper _output;
-        private readonly RepeatContext _repeatContext; 
+        private readonly RepeatContext _repeatContext;
         private readonly bool _collectDumpOnFailure;
 
         public LoggedTestInvoker(
