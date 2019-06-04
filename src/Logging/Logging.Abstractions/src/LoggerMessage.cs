@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.Logging
         /// </summary>
         /// <param name="formatString">The named format string</param>
         /// <returns>A delegate which when invoked creates a log scope.</returns>
-        public static Func<ILogger, IDisposable> DefineScope(string formatString)
+        public static Func<ILogger, IDisposable?> DefineScope(string formatString)
         {
             var formatter = CreateLogValuesFormatter(formatString, expectedNamedParameterCount: 0);
 
@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.Logging
         /// <typeparam name="T1">The type of the first parameter passed to the named format string.</typeparam>
         /// <param name="formatString">The named format string</param>
         /// <returns>A delegate which when invoked creates a log scope.</returns>
-        public static Func<ILogger, T1, IDisposable> DefineScope<T1>(string formatString)
+        public static Func<ILogger, T1, IDisposable?> DefineScope<T1>(string formatString)
         {
             var formatter = CreateLogValuesFormatter(formatString, expectedNamedParameterCount: 1);
 
@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.Logging
         /// <typeparam name="T2">The type of the second parameter passed to the named format string.</typeparam>
         /// <param name="formatString">The named format string</param>
         /// <returns>A delegate which when invoked creates a log scope.</returns>
-        public static Func<ILogger, T1, T2, IDisposable> DefineScope<T1, T2>(string formatString)
+        public static Func<ILogger, T1, T2, IDisposable?> DefineScope<T1, T2>(string formatString)
         {
             var formatter = CreateLogValuesFormatter(formatString, expectedNamedParameterCount: 2);
 
@@ -62,7 +62,7 @@ namespace Microsoft.Extensions.Logging
         /// <typeparam name="T3">The type of the third parameter passed to the named format string.</typeparam>
         /// <param name="formatString">The named format string</param>
         /// <returns>A delegate which when invoked creates a log scope.</returns>
-        public static Func<ILogger, T1, T2, T3, IDisposable> DefineScope<T1, T2, T3>(string formatString)
+        public static Func<ILogger, T1, T2, T3, IDisposable?> DefineScope<T1, T2, T3>(string formatString)
         {
             var formatter = CreateLogValuesFormatter(formatString, expectedNamedParameterCount: 3);
 
@@ -322,7 +322,7 @@ namespace Microsoft.Extensions.Logging
                     switch (index)
                     {
                         case 0:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0!);
                         case 1:
                             return new KeyValuePair<string, object>("{OriginalFormat}", _formatter.OriginalFormat);
                         default:
@@ -342,7 +342,7 @@ namespace Microsoft.Extensions.Logging
             }
 
 
-            public override string ToString() => _formatter.Format(_value0);
+            public override string ToString() => _formatter.Format(_value0!);
 
             IEnumerator IEnumerable.GetEnumerator()
             {
@@ -372,9 +372,9 @@ namespace Microsoft.Extensions.Logging
                     switch (index)
                     {
                         case 0:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0!);
                         case 1:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1!);
                         case 2:
                             return new KeyValuePair<string, object>("{OriginalFormat}", _formatter.OriginalFormat);
                         default:
@@ -393,7 +393,7 @@ namespace Microsoft.Extensions.Logging
                 }
             }
 
-            public override string ToString() => _formatter.Format(_value0, _value1);
+            public override string ToString() => _formatter.Format(_value0!, _value1!);
 
             IEnumerator IEnumerable.GetEnumerator()
             {
@@ -419,11 +419,11 @@ namespace Microsoft.Extensions.Logging
                     switch (index)
                     {
                         case 0:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0!);
                         case 1:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1!);
                         case 2:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2!);
                         case 3:
                             return new KeyValuePair<string, object>("{OriginalFormat}", _formatter.OriginalFormat);
                         default:
@@ -440,7 +440,7 @@ namespace Microsoft.Extensions.Logging
                 _value2 = value2;
             }
 
-            public override string ToString() => _formatter.Format(_value0, _value1, _value2);
+            public override string ToString() => _formatter.Format(_value0!, _value1!, _value2!);
 
             public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
             {
@@ -475,13 +475,13 @@ namespace Microsoft.Extensions.Logging
                     switch (index)
                     {
                         case 0:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0!);
                         case 1:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1!);
                         case 2:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2!);
                         case 3:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[3], _value3);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[3], _value3!);
                         case 4:
                             return new KeyValuePair<string, object>("{OriginalFormat}", _formatter.OriginalFormat);
                         default:
@@ -499,7 +499,7 @@ namespace Microsoft.Extensions.Logging
                 _value3 = value3;
             }
 
-            private object[] ToArray() => new object[] { _value0, _value1, _value2, _value3 };
+            private object[] ToArray() => new object[] { _value0!, _value1!, _value2!, _value3! };
 
             public override string ToString() => _formatter.Format(ToArray());
 
@@ -537,15 +537,15 @@ namespace Microsoft.Extensions.Logging
                     switch (index)
                     {
                         case 0:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0!);
                         case 1:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1!);
                         case 2:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2!);
                         case 3:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[3], _value3);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[3], _value3!);
                         case 4:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[4], _value4);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[4], _value4!);
                         case 5:
                             return new KeyValuePair<string, object>("{OriginalFormat}", _formatter.OriginalFormat);
                         default:
@@ -564,7 +564,7 @@ namespace Microsoft.Extensions.Logging
                 _value4 = value4;
             }
 
-            private object[] ToArray() => new object[] { _value0, _value1, _value2, _value3, _value4 };
+            private object[] ToArray() => new object[] { _value0!, _value1!, _value2!, _value3!, _value4! };
 
             public override string ToString() => _formatter.Format(ToArray());
 
@@ -603,17 +603,17 @@ namespace Microsoft.Extensions.Logging
                     switch (index)
                     {
                         case 0:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[0], _value0!);
                         case 1:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[1], _value1!);
                         case 2:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[2], _value2!);
                         case 3:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[3], _value3);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[3], _value3!);
                         case 4:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[4], _value4);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[4], _value4!);
                         case 5:
-                            return new KeyValuePair<string, object>(_formatter.ValueNames[5], _value5);
+                            return new KeyValuePair<string, object>(_formatter.ValueNames[5], _value5!);
                         case 6:
                             return new KeyValuePair<string, object>("{OriginalFormat}", _formatter.OriginalFormat);
                         default:
@@ -633,7 +633,7 @@ namespace Microsoft.Extensions.Logging
                 _value5 = value5;
             }
 
-            private object[] ToArray() => new object[] { _value0, _value1, _value2, _value3, _value4, _value5 };
+            private object[] ToArray() => new object[] { _value0!, _value1!, _value2!, _value3!, _value4!, _value5! };
 
             public override string ToString() => _formatter.Format(ToArray());
 

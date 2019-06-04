@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.Logging.Abstractions
         public static readonly NullLogger<T> Instance = new NullLogger<T>();
 
         /// <inheritdoc />
-        public IDisposable BeginScope<TState>(TState state)
+        public IDisposable? BeginScope<TState>(TState state)
         {
             return NullDisposable.Instance;
         }
@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.Logging.Abstractions
             LogLevel logLevel,
             EventId eventId,
             TState state,
-            Exception exception,
+            Exception? exception,
             Func<TState, Exception, string> formatter)
         {
         }

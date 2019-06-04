@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.Logging
 
             public object State { get; }
 
-            public override string ToString()
+            public override string? ToString()
             {
                 return State?.ToString();
             }

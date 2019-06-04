@@ -19,12 +19,12 @@ namespace Microsoft.Extensions.Logging
         private const string NullFormat = "[null]";
         private static int _count;
         private static ConcurrentDictionary<string, LogValuesFormatter> _formatters = new ConcurrentDictionary<string, LogValuesFormatter>();
-        private readonly LogValuesFormatter _formatter;
+        private readonly LogValuesFormatter? _formatter;
         private readonly object[] _values;
         private readonly string _originalMessage;
 
         // for testing purposes
-        internal LogValuesFormatter Formatter => _formatter;
+        internal LogValuesFormatter? Formatter => _formatter;
 
         public FormattedLogValues(string format, params object[] values)
         {
@@ -52,7 +52,7 @@ namespace Microsoft.Extensions.Logging
             }
 
             _originalMessage = format ?? NullFormat;
-            _values = values;
+            _values = values ?? Array.Empty<object>();
         }
 
         public KeyValuePair<string, object> this[int index]
@@ -69,7 +69,7 @@ namespace Microsoft.Extensions.Logging
                     return new KeyValuePair<string, object> ("{OriginalFormat}", _originalMessage);
                 }
 
-                return _formatter.GetValue(_values, index);
+                return _formatter!.GetValue(_values, index);
             }
         }
 
