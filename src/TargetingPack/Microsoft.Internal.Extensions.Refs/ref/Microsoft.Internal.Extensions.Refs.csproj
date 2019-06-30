@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <IsPackable>true</IsPackable>
     <IsShipping>false</IsShipping>
+    <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
     <!-- Subject to change: see https://github.com/dotnet/designs/pull/50 -->
