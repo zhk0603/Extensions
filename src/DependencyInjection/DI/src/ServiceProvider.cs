@@ -206,9 +206,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         resolveMethodBuilder.Append(jumpPlaceholder);
                         // Put resolve code here
 
-                        EmitResolver(resolveMethodBuilder, callsite, o);
+                        EmitResolver(context, callsite);
 
-                        EmitCWL(resolveMethodBuilder, "Resolving " + callsite.ServiceType);
+                        EmitCWL(context, resolveMethodBuilder, "Resolving " + callsite.ServiceType);
 
                         var nop = Instruction.Create(OpCodes.Nop);
                         // Adjust jump
@@ -223,21 +223,24 @@ namespace Microsoft.Extensions.DependencyInjection
             internal class CecilResolverBuilderContext
             {
                 public AssemblyDefinition AssemblyDefinition { get; set; }
+                public TypeReference ObjectTypeReference => _objectTypeReference ?=
             }
-        }
-        private MethodDefinition EmitResolver(TypeDefinition type, ServiceCallSite callsite)
-        {
-            return new MethodDefinition("Resolve_" + callsite.ServiceType.Name, MethodAttributes.Private, );
-        }
 
-        void EmitCWL(ILProcessor p, string text)
-        {
-            var console = p.Body.Method.Module.ImportReference(typeof(Console));
-            var cwl = p.Body.Method.Module.ImportReference(console
-                .Resolve().Methods
-                .First(m => m.Name == "WriteLine" && m.Parameters.Count == 1 && m.Parameters[0].ParameterType.MetadataType == MetadataType.String));
-            p.Emit(OpCodes.Ldstr, text);
-            p.Emit(OpCodes.Call, cwl);
+            private MethodDefinition EmitResolver(CecilResolverBuilderContext context, ServiceCallSite callsite)
+            {
+                return new MethodDefinition("Resolve_" + callsite.ServiceType.Name, MethodAttributes.Private, context.ObjectTypeReference);
+            }
+
+            void EmitCWL(CecilResolverBuilderContext context, ILProcessor p, string text)
+            {
+                var console = p.Body.Method.Module.ImportReference(typeof(Console));
+                var cwl = p.Body.Method.Module.ImportReference(console
+                    .Resolve().Methods
+                    .First(m => m.Name == "WriteLine" && m.Parameters.Count == 1 && m.Parameters[0].ParameterType.MetadataType == MetadataType.String));
+                p.Emit(OpCodes.Ldstr, text);
+                p.Emit(OpCodes.Call, cwl);
+            }
+
         }
 
         void IServiceProviderEngineCallback.OnCreate(ServiceCallSite callSite)
