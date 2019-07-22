@@ -10,6 +10,12 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionContainerBuilderExtensions
     {
+        public static void Emit(this IServiceCollection services, string file)
+        {
+            var p = BuildServiceProvider(services, ServiceProviderOptions.Default);
+            p.EmitIT(file);
+        }
+
         /// <summary>
         /// Creates a <see cref="ServiceProvider"/> containing services from the provided <see cref="IServiceCollection"/>.
         /// </summary>

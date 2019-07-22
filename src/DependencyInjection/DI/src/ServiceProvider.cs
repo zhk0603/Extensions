@@ -3,9 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection.ServiceLookup;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,12 +21,15 @@ namespace Microsoft.Extensions.DependencyInjection
         , IAsyncDisposable
 #endif
     {
+        private readonly IEnumerable<ServiceDescriptor> _serviceDescriptors;
+
         private readonly IServiceProviderEngine _engine;
 
         private readonly CallSiteValidator _callSiteValidator;
 
         internal ServiceProvider(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options)
         {
+            _serviceDescriptors = serviceDescriptors;
             IServiceProviderEngineCallback callback = null;
             if (options.ValidateScopes)
             {
@@ -99,6 +106,138 @@ namespace Microsoft.Extensions.DependencyInjection
         public void Dispose()
         {
             _engine.Dispose();
+        }
+
+        class CecilResolverBuilder
+        {
+            private readonly ServiceDescriptor[] _descriptors;
+
+            public CecilResolverBuilder(ServiceDescriptor[] descriptors)
+            {
+                _descriptors = descriptors;
+            }
+
+            public AssemblyDefinition Build()
+            {
+                var context = new CecilResolverBuilderContext()
+                {
+                    AssemblyDefinition = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition("DI", new Version(1, 0, 0, 0)), "mail", ModuleKind.Dll),
+
+                };
+
+                var assemblyDefinition = context.AssemblyDefinition;
+                var serviceDescriptors = _descriptors.ToArray();
+
+                var f = new CallSiteFactory(serviceDescriptors);
+                f.Add(typeof(IServiceProvider), new ServiceProviderCallSite());
+                f.Add(typeof(IServiceScopeFactory), new ServiceScopeFactoryCallSite());
+
+                TypeDefinition rootScope = new TypeDefinition("DI", "RootScope", TypeAttributes.Class);
+                TypeDefinition scope = new TypeDefinition("DI", "Scope", TypeAttributes.Class);
+
+                assemblyDefinition.MainModule.Types.Add(rootScope);
+
+                var v = assemblyDefinition.MainModule.ImportReference(typeof(void));
+                var o = assemblyDefinition.MainModule.ImportReference(typeof(object));
+                var t = assemblyDefinition.MainModule.ImportReference(typeof(Type));
+                var gtt = assemblyDefinition.MainModule.ImportReference(t.Resolve().Methods.Single(m => m.Name == "GetTypeFromHandle"));
+                var teq = assemblyDefinition.MainModule.ImportReference(t.Resolve().Methods.Single(m => m.Name == "op_Equality"));
+
+                var sd = assemblyDefinition.MainModule.ImportReference(typeof(ServiceDescriptor));
+                var sdf = assemblyDefinition.MainModule.ImportReference(sd.Resolve().Properties.Single(p => p.Name == nameof(ServiceDescriptor.ImplementationFactory)).GetMethod);
+                var sdi = assemblyDefinition.MainModule.ImportReference(sd.Resolve().Properties.Single(p => p.Name == nameof(ServiceDescriptor.ImplementationInstance)).GetMethod);
+
+                MethodDefinition initMethod = new MethodDefinition("SetGlobals", MethodAttributes.Public, v);
+                var parameterDefinition = new ParameterDefinition("descriptors", ParameterAttributes.None, sd.MakeArrayType());
+                initMethod.Parameters.Add(parameterDefinition);
+                var setGlobalsBuilder = initMethod.Body.GetILProcessor();
+
+                int i = 0;
+                foreach (var descriptor in serviceDescriptors)
+                {
+                    if (descriptor.ImplementationFactory != null || descriptor.ImplementationInstance != null)
+                    {
+                        var field = new FieldDefinition("constant" + i, FieldAttributes.Private, o);
+
+                        setGlobalsBuilder.Emit(OpCodes.Ldarg_0);
+
+                        setGlobalsBuilder.Emit(OpCodes.Ldarg, parameterDefinition);
+                        setGlobalsBuilder.Emit(OpCodes.Ldc_I4, i);
+                        setGlobalsBuilder.Emit(OpCodes.Ldelem_Ref);
+
+                        if (descriptor.ImplementationFactory != null)
+                        {
+                            setGlobalsBuilder.Emit(OpCodes.Callvirt, sdf);
+                        }
+                        else
+                        {
+                            setGlobalsBuilder.Emit(OpCodes.Callvirt, sdi);
+                        }
+
+                        setGlobalsBuilder.Emit(OpCodes.Stfld, field);
+                        rootScope.Fields.Add(field);
+                    }
+
+                    i++;
+                }
+                setGlobalsBuilder.Emit(OpCodes.Ret);
+
+                rootScope.Methods.Add(initMethod);
+
+                MethodDefinition resolveMethod = new MethodDefinition("Resolve", MethodAttributes.Public, o);
+                var resolveTypeParameter = new ParameterDefinition("type", ParameterAttributes.None, t);
+                resolveMethod.Parameters.Add(resolveTypeParameter);
+                rootScope.Methods.Add(resolveMethod);
+                var resolveMethodBuilder = resolveMethod.Body.GetILProcessor();
+
+                foreach (var descriptor in serviceDescriptors)
+                {
+                    if (!descriptor.ServiceType.IsGenericType || descriptor.ServiceType.IsConstructedGenericType)
+                    {
+                        var callsite = f.GetCallSite(descriptor.ServiceType, new CallSiteChain());
+                        var imported = assemblyDefinition.MainModule.ImportReference(callsite.ServiceType);
+
+                        resolveMethodBuilder.Emit(OpCodes.Ldtoken, imported);
+                        resolveMethodBuilder.Emit(OpCodes.Call, gtt);
+
+                        resolveMethodBuilder.Emit(OpCodes.Ldarg, resolveTypeParameter);
+                        resolveMethodBuilder.Emit(OpCodes.Call, teq);
+                        var jumpPlaceholder = Instruction.Create(OpCodes.Nop);
+                        resolveMethodBuilder.Append(jumpPlaceholder);
+                        // Put resolve code here
+
+                        EmitResolver(resolveMethodBuilder, callsite, o);
+
+                        EmitCWL(resolveMethodBuilder, "Resolving " + callsite.ServiceType);
+
+                        var nop = Instruction.Create(OpCodes.Nop);
+                        // Adjust jump
+                        resolveMethodBuilder.Replace(jumpPlaceholder, Instruction.Create(OpCodes.Brfalse, nop));
+                        resolveMethodBuilder.Append(nop);
+                    }
+                }
+
+                resolveMethodBuilder.Emit(OpCodes.Ldnull);
+                resolveMethodBuilder.Emit(OpCodes.Ret);
+            }
+            internal class CecilResolverBuilderContext
+            {
+                public AssemblyDefinition AssemblyDefinition { get; set; }
+            }
+        }
+        private MethodDefinition EmitResolver(TypeDefinition type, ServiceCallSite callsite)
+        {
+            return new MethodDefinition("Resolve_" + callsite.ServiceType.Name, MethodAttributes.Private, );
+        }
+
+        void EmitCWL(ILProcessor p, string text)
+        {
+            var console = p.Body.Method.Module.ImportReference(typeof(Console));
+            var cwl = p.Body.Method.Module.ImportReference(console
+                .Resolve().Methods
+                .First(m => m.Name == "WriteLine" && m.Parameters.Count == 1 && m.Parameters[0].ParameterType.MetadataType == MetadataType.String));
+            p.Emit(OpCodes.Ldstr, text);
+            p.Emit(OpCodes.Call, cwl);
         }
 
         void IServiceProviderEngineCallback.OnCreate(ServiceCallSite callSite)
