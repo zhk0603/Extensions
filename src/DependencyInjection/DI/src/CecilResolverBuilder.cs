@@ -13,6 +13,8 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     class CecilResolverBuilder : CallSiteVisitor<CecilResolverBuilder.CecilResolverMethodBuilderContext, object>
     {
+        private static readonly MethodAttributes PublicCtorAttributes =
+            MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
         private readonly ServiceDescriptor[] _descriptors;
 
         public CecilResolverBuilder(ServiceDescriptor[] descriptors)
@@ -40,7 +42,6 @@ namespace Microsoft.Extensions.DependencyInjection
             f.Add(typeof(IServiceScopeFactory), new ServiceScopeFactoryCallSite());
 
             TypeDefinition rootScope = new TypeDefinition("DI", "RootScope", TypeAttributes.Class, context.BaseEngineTypeReference);
-            TypeDefinition scope = new TypeDefinition("DI", "Scope", TypeAttributes.Class);
 
             assemblyDefinition.MainModule.Types.Add(rootScope);
             context.RootScopeTypeDefinition = rootScope;
@@ -49,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var sdf = assemblyDefinition.MainModule.ImportReference(sd.Resolve().Properties.Single(p => p.Name == nameof(ServiceDescriptor.ImplementationFactory)).GetMethod);
             var sdi = assemblyDefinition.MainModule.ImportReference(sd.Resolve().Properties.Single(p => p.Name == nameof(ServiceDescriptor.ImplementationInstance)).GetMethod);
 
-            MethodDefinition initMethod = new MethodDefinition("SetGlobals", MethodAttributes.Public, context.VoidTypeReference);
+            MethodDefinition initMethod = new MethodDefinition(".ctor", PublicCtorAttributes, context.AssemblyDefinition.MainModule.TypeSystem.Void);
             var parameterDefinition = new ParameterDefinition("descriptors", ParameterAttributes.None, sd.MakeArrayType());
             initMethod.Parameters.Add(parameterDefinition);
             var setGlobalsBuilder = initMethod.Body.GetILProcessor();
@@ -127,8 +128,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
 
                 var a = new CustomAttribute(ignoreChecksAttribute.GetConstructors().Single());
-                a.ConstructorArguments.Add(new CustomAttributeArgument(context.AssemblyDefinition.MainModule.TypeSystem.String, aref.FullName));
-                assemblyDefinition.MainModule.CustomAttributes.Add(a);
+                a.ConstructorArguments.Add(new CustomAttributeArgument(context.AssemblyDefinition.MainModule.TypeSystem.String, aref.Name));
+                assemblyDefinition.CustomAttributes.Add(a);
             }
 
             return assemblyDefinition;
@@ -141,7 +142,6 @@ namespace Microsoft.Extensions.DependencyInjection
             private TypeReference _consoleReferenc;
             private MethodReference _consoleWriteLineReference;
             private TypeReference _typeTypeReference;
-            private TypeReference _voidTypeReference;
             private MethodReference _typeOpEqualityMethodReference;
             private MethodReference _typeGetTypeFromHandleMethodReference;
             private TypeReference _arrayTypeReference;
@@ -162,7 +162,6 @@ namespace Microsoft.Extensions.DependencyInjection
    TypeTypeReference.Resolve().Methods.Single(m => m.Name == "Empty"));
 
             public TypeReference TypeTypeReference => _typeTypeReference ??= AssemblyDefinition.MainModule.ImportReference(typeof(Type));
-            public TypeReference VoidTypeReference => _voidTypeReference ??= AssemblyDefinition.MainModule.ImportReference(typeof(void));
             public MethodReference Type_OpEqualityMethodReference => _typeOpEqualityMethodReference ??= AssemblyDefinition.MainModule.ImportReference(
                 TypeTypeReference.Resolve().Methods.Single(m => m.Name == "op_Equality"));
             public MethodReference Type_GetTypeFromHandleMethodReference => _typeGetTypeFromHandleMethodReference ??= AssemblyDefinition.MainModule.ImportReference(
@@ -177,8 +176,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private TypeDefinition EmitIgnoresAccessChecksToAttribute(CecilResolverBuilderContext context)
         {
-            var methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-
             var type = new TypeDefinition("System.Runtime.CompilerServices", "IgnoresAccessChecksToAttribute", TypeAttributes.Class);
             var field = new FieldDefinition("_assemblyName", FieldAttributes.Private, context.AssemblyDefinition.MainModule.TypeSystem.String);
 
@@ -202,11 +199,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
             type.Properties.Add(property);
 
-            var ctor = new MethodDefinition(".ctor", methodAttributes, context.AssemblyDefinition.MainModule.TypeSystem.Void);
+            var param = new ParameterDefinition("name", ParameterAttributes.None, context.AssemblyDefinition.MainModule.TypeSystem.String);
+            var ctor = new MethodDefinition(".ctor", PublicCtorAttributes, context.AssemblyDefinition.MainModule.TypeSystem.Void);
+            ctor.Parameters.Add(param);
+
             var ctorIL = ctor.Body.GetILProcessor();
             ctorIL.Emit(OpCodes.Ldarg_0);
             ctorIL.Emit(OpCodes.Ldarg_1);
             ctorIL.Emit(OpCodes.Stfld, field);
+            ctorIL.Emit(OpCodes.Ret);
 
             type.Methods.Add(ctor);
             type.Methods.Add(getter);
