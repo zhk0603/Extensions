@@ -22,6 +22,16 @@ namespace Microsoft.Extensions.DependencyInjection
             _descriptors = descriptors;
         }
 
+        private static string FormatTypeName(TypeReference type)
+        {
+            if (type.IsGenericInstance)
+            {
+                var genericInstance = (GenericInstanceType)type;
+                return $"{type.Name.Substring(0, type.Name.IndexOf('`'))}_{string.Join("_", genericInstance.GenericArguments.Select(p => FormatTypeName(p)).ToArray())}_";
+            }
+            return type.Name;
+        }
+
         public AssemblyDefinition Build()
         {
             var context = new CecilResolverBuilderContext()
@@ -91,34 +101,47 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 if (!descriptor.ServiceType.IsGenericType || descriptor.ServiceType.IsConstructedGenericType)
                 {
-                    var callsite = f.GetCallSite(descriptor.ServiceType, new CallSiteChain());
-                    var imported = assemblyDefinition.MainModule.ImportReference(callsite.ServiceType);
-
-                    resolveMethodBuilder.Emit(OpCodes.Ldtoken, imported);
-                    resolveMethodBuilder.Emit(OpCodes.Call, context.Type_GetTypeFromHandleMethodReference);
-
-                    resolveMethodBuilder.Emit(OpCodes.Ldarg, resolveTypeParameter);
-                    resolveMethodBuilder.Emit(OpCodes.Call, context.Type_OpEqualityMethodReference);
-                    var jumpPlaceholder = Instruction.Create(OpCodes.Nop);
-                    resolveMethodBuilder.Append(jumpPlaceholder);
-                    // Put resolve code here
-
-                    var resolver = EmitResolver(context, callsite);
-
-                    rootScope.Methods.Add(resolver);
-
-                    EmitCWL(context, resolveMethodBuilder, "Resolving " + callsite.ServiceType);
-
-                    resolveMethodBuilder.Emit(OpCodes.Ldarg_0);
-
-                    resolveMethodBuilder.Emit(OpCodes.Callvirt, resolver);
-                    resolveMethodBuilder.Emit(OpCodes.Ret);
-
-                    var nop = Instruction.Create(OpCodes.Nop);
-                    // Adjust jump
-                    resolveMethodBuilder.Replace(jumpPlaceholder, Instruction.Create(OpCodes.Brfalse, nop));
-                    resolveMethodBuilder.Append(nop);
+                    context.ResolvedServices.Enqueue(descriptor.ServiceType);
                 }
+            }
+
+            while (context.ResolvedServices.Any())
+            {
+                var service = context.ResolvedServices.Dequeue();
+
+                if (context.Resolvers.ContainsKey(service))
+                {
+                    continue;
+                }
+
+                var callsite = f.GetCallSite(service, new CallSiteChain());
+                var imported = assemblyDefinition.MainModule.ImportReference(callsite.ServiceType);
+
+                resolveMethodBuilder.Emit(OpCodes.Ldtoken, imported);
+                resolveMethodBuilder.Emit(OpCodes.Call, context.Type_GetTypeFromHandleMethodReference);
+
+                resolveMethodBuilder.Emit(OpCodes.Ldarg, resolveTypeParameter);
+                resolveMethodBuilder.Emit(OpCodes.Call, context.Type_OpEqualityMethodReference);
+                var jumpPlaceholder = Instruction.Create(OpCodes.Nop);
+                resolveMethodBuilder.Append(jumpPlaceholder);
+                // Put resolve code here
+
+                var resolver = EmitResolver(context, callsite);
+                context.Resolvers.Add(service, resolver);
+
+                rootScope.Methods.Add(resolver);
+
+                EmitCWL(context, resolveMethodBuilder, "Resolving " + callsite.ServiceType);
+
+                resolveMethodBuilder.Emit(OpCodes.Ldarg_0);
+
+                resolveMethodBuilder.Emit(OpCodes.Callvirt, resolver);
+                resolveMethodBuilder.Emit(OpCodes.Ret);
+
+                var nop = Instruction.Create(OpCodes.Nop);
+                // Adjust jump
+                resolveMethodBuilder.Replace(jumpPlaceholder, Instruction.Create(OpCodes.Brfalse, nop));
+                resolveMethodBuilder.Append(nop);
             }
 
             resolveMethodBuilder.Emit(OpCodes.Ldnull);
@@ -133,6 +156,11 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return assemblyDefinition;
+        }
+
+        protected override object VisitCallSiteMain(ServiceCallSite callSite, CecilResolverMethodBuilderContext argument)
+        {
+            return base.VisitCallSiteMain(callSite, argument);
         }
 
 
@@ -153,6 +181,10 @@ namespace Microsoft.Extensions.DependencyInjection
             public Dictionary<ServiceCacheKey, FieldDefinition> SingletonCaches { get; set; } = new Dictionary<ServiceCacheKey, FieldDefinition>();
 
             public Dictionary<ServiceDescriptor, FieldDefinition> DescriptorConstants { get; set; } = new Dictionary<ServiceDescriptor, FieldDefinition>();
+
+            public Queue<Type> ResolvedServices { get; set; } = new Queue<Type>();
+
+            public Dictionary<Type, MethodDefinition> Resolvers { get; set; } = new Dictionary<Type, MethodDefinition>();
 
             public TypeReference BaseEngineTypeReference => _arrayTypeReference ??= AssemblyDefinition.MainModule.ImportReference(typeof(NiceServiceProviderEngine));
 
@@ -178,7 +210,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var type = new TypeDefinition("System.Runtime.CompilerServices", "IgnoresAccessChecksToAttribute", TypeAttributes.Class);
             var field = new FieldDefinition("_assemblyName", FieldAttributes.Private, context.AssemblyDefinition.MainModule.TypeSystem.String);
-
 
             type.Fields.Add(field);
 
@@ -218,7 +249,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private MethodDefinition EmitResolver(CecilResolverBuilderContext context, ServiceCallSite callsite)
         {
             var imported = context.AssemblyDefinition.MainModule.ImportReference(callsite.ServiceType);
-            var method = new MethodDefinition("Resolve_" + callsite.ServiceType.Name, MethodAttributes.Private, imported);
+            var method = new MethodDefinition("Resolve_" + FormatTypeName(imported), MethodAttributes.Private, imported);
             var methodBuilderContext = new CecilResolverMethodBuilderContext()
             {
                 GlobalContext = context,
@@ -281,7 +312,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // array[1] = [Create argument1];
             // ...
 
-            var imported = argument.ResolverMethod.Module.ImportReference(enumerableCallSite.ItemType);
+            var imported = argument.GlobalContext.AssemblyDefinition.MainModule.ImportReference(enumerableCallSite.ItemType);
             argument.ILProcessor.Emit(OpCodes.Ldc_I4, enumerableCallSite.ServiceCallSites.Length);
             argument.ILProcessor.Emit(OpCodes.Newarr, imported);
             for (int i = 0; i < enumerableCallSite.ServiceCallSites.Length; i++)
@@ -313,9 +344,19 @@ namespace Microsoft.Extensions.DependencyInjection
             argument.ILProcessor.Emit(OpCodes.Ldnull);
             return null;
         }
+
         protected override object VisitDisposeCache(ServiceCallSite callSite, CecilResolverMethodBuilderContext argument)
         {
             return base.VisitDisposeCache(callSite, argument);
+        }
+
+        protected override object VisitCallSite(ServiceCallSite callSite, CecilResolverMethodBuilderContext argument)
+        {
+            if (!argument.GlobalContext.Resolvers.ContainsKey(callSite.ServiceType))
+            {
+                argument.GlobalContext.ResolvedServices.Enqueue(callSite.ServiceType);
+            }
+            return base.VisitCallSite(callSite, argument);
         }
 
         protected override object VisitRootCache(ServiceCallSite callSite, CecilResolverMethodBuilderContext argument)
@@ -342,9 +383,8 @@ namespace Microsoft.Extensions.DependencyInjection
             argument.ILProcessor.Append(nop);
             argument.ILProcessor.Emit(OpCodes.Ldarg_0);
             argument.ILProcessor.Emit(OpCodes.Ldfld, field);
-            argument.ILProcessor.Emit(OpCodes.Ret);
 
-            return base.VisitRootCache(callSite, argument);
+            return null;
         }
 
         private FieldDefinition GetSingletonCacheField(CecilResolverBuilderContext argument, ServiceCacheKey key)

@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionContainerBuilderExtensions
     {
-        public static ServiceProvider Emit(this IServiceCollection services, string file)
+        public static ServiceProvider EmitAndUse(this IServiceCollection services, string file)
         {
             var p = BuildServiceProvider(services, ServiceProviderOptions.Default);
             p.EmitIT(file);
