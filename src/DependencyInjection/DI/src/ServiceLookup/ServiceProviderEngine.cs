@@ -8,6 +8,40 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 {
+    internal abstract class NiceServiceProviderEngine : IServiceProviderEngine, IServiceScope
+    {
+        private List<object> _disposables = new List<object>();
+
+        public IServiceScope RootScope => this;
+
+        public IServiceProvider ServiceProvider => this;
+
+        public void Dispose()
+        {
+            lock (_disposables)
+            {
+                foreach (var disposable in _disposables)
+                {
+                    (disposable as IDisposable)?.Dispose();
+                }
+            }
+        }
+
+#if DISPOSE_ASYNC
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return default;
+        }
+#endif
+
+        public abstract object GetService(Type serviceType);
+
+        public void ValidateService(ServiceDescriptor descriptor)
+        {
+        }
+    }
+
     internal abstract class ServiceProviderEngine : IServiceProviderEngine, IServiceScopeFactory
     {
         private readonly IServiceProviderEngineCallback _callback;

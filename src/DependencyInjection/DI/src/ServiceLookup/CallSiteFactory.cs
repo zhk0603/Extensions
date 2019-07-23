@@ -213,11 +213,11 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 var lifetime = new ResultCache(descriptor.Lifetime, serviceType, slot);
                 if (descriptor.ImplementationInstance != null)
                 {
-                    callSite = new ConstantCallSite(descriptor.ServiceType, descriptor.ImplementationInstance);
+                    callSite = new ConstantCallSite(descriptor.ServiceType, descriptor.ImplementationInstance, descriptor);
                 }
                 else if (descriptor.ImplementationFactory != null)
                 {
-                    callSite = new FactoryCallSite(lifetime, descriptor.ServiceType, descriptor.ImplementationFactory);
+                    callSite = new FactoryCallSite(lifetime, descriptor.ServiceType, descriptor.ImplementationFactory, descriptor);
                 }
                 else if (descriptor.ImplementationType != null)
                 {
@@ -364,7 +364,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
                 if (callSite == null && ParameterDefaultValue.TryGetDefaultValue(parameters[index], out var defaultValue))
                 {
-                    callSite = new ConstantCallSite(parameterType, defaultValue);
+                    callSite = new ConstantCallSite(parameterType, defaultValue, null);
                 }
 
                 if (callSite == null)

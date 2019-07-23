@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// The default IServiceProvider.
     /// </summary>
-    public sealed class ServiceProvider : IServiceProvider, IDisposable, IServiceProviderEngineCallback
+    public sealed partial class ServiceProvider : IServiceProvider, IDisposable, IServiceProviderEngineCallback
 #if DISPOSE_ASYNC
         , IAsyncDisposable
 #endif
@@ -25,52 +25,17 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private readonly IServiceProviderEngine _engine;
 
-        private readonly CallSiteValidator _callSiteValidator;
+        private CallSiteValidator _callSiteValidator;
 
+        internal ServiceProvider(IServiceProviderEngine engine)
+        {
+            _engine = engine;
+
+        }
         internal ServiceProvider(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options)
         {
             _serviceDescriptors = serviceDescriptors;
-            IServiceProviderEngineCallback callback = null;
-            if (options.ValidateScopes)
-            {
-                callback = this;
-                _callSiteValidator = new CallSiteValidator();
-            }
-
-            switch (options.Mode)
-            {
-                case ServiceProviderMode.Default:
-#if !NETCOREAPP
-                    _engine = new DynamicServiceProviderEngine(serviceDescriptors, callback);
-#else
-                    if (RuntimeFeature.IsSupported("IsDynamicCodeCompiled"))
-                    {
-                        _engine = new DynamicServiceProviderEngine(serviceDescriptors, callback);
-                    }
-                    else
-                    {
-                        // Don't try to compile Expressions/IL if they are going to get interpreted
-                        _engine = new RuntimeServiceProviderEngine(serviceDescriptors, callback);
-                    }
-#endif
-                    break;
-                case ServiceProviderMode.Dynamic:
-                    _engine = new DynamicServiceProviderEngine(serviceDescriptors, callback);
-                    break;
-                case ServiceProviderMode.Runtime:
-                    _engine = new RuntimeServiceProviderEngine(serviceDescriptors, callback);
-                    break;
-#if IL_EMIT
-                case ServiceProviderMode.ILEmit:
-                    _engine = new ILEmitServiceProviderEngine(serviceDescriptors, callback);
-                    break;
-#endif
-                case ServiceProviderMode.Expressions:
-                    _engine = new ExpressionsServiceProviderEngine(serviceDescriptors, callback);
-                    break;
-                default:
-                    throw new NotSupportedException(nameof(options.Mode));
-            }
+            _engine = CreateEngine(serviceDescriptors, options);
 
             if (options.ValidateOnBuild)
             {
@@ -95,6 +60,46 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
+        private IServiceProviderEngine CreateEngine(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options)
+        {
+            IServiceProviderEngineCallback callback = null;
+            if (options.ValidateScopes)
+            {
+                callback = this;
+                _callSiteValidator = new CallSiteValidator();
+            }
+
+            switch (options.Mode)
+            {
+                case ServiceProviderMode.Default:
+#if !NETCOREAPP
+                    return new DynamicServiceProviderEngine(serviceDescriptors, callback);
+#else
+                    if (RuntimeFeature.IsSupported("IsDynamicCodeCompiled"))
+                    {
+                        return new DynamicServiceProviderEngine(serviceDescriptors, callback);
+                    }
+                    else
+                    {
+                        // Don't try to compile Expressions/IL if they are going to get interpreted
+                        return new RuntimeServiceProviderEngine(serviceDescriptors, callback);
+                    }
+#endif
+                case ServiceProviderMode.Dynamic:
+                    return new DynamicServiceProviderEngine(serviceDescriptors, callback);
+                case ServiceProviderMode.Runtime:
+                    return new RuntimeServiceProviderEngine(serviceDescriptors, callback);
+#if IL_EMIT
+                case ServiceProviderMode.ILEmit:
+                    return new ILEmitServiceProviderEngine(serviceDescriptors, callback);
+#endif
+                case ServiceProviderMode.Expressions:
+                    return new ExpressionsServiceProviderEngine(serviceDescriptors, callback);
+                default:
+                    throw new NotSupportedException(nameof(options.Mode));
+            }
+        }
+
         /// <summary>
         /// Gets the service object of the specified type.
         /// </summary>
@@ -108,136 +113,9 @@ namespace Microsoft.Extensions.DependencyInjection
             _engine.Dispose();
         }
 
-        class CecilResolverBuilder
+        public void EmitIT(string file)
         {
-            private readonly ServiceDescriptor[] _descriptors;
-
-            public CecilResolverBuilder(ServiceDescriptor[] descriptors)
-            {
-                _descriptors = descriptors;
-            }
-
-            public AssemblyDefinition Build()
-            {
-                var context = new CecilResolverBuilderContext()
-                {
-                    AssemblyDefinition = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition("DI", new Version(1, 0, 0, 0)), "mail", ModuleKind.Dll),
-
-                };
-
-                var assemblyDefinition = context.AssemblyDefinition;
-                var serviceDescriptors = _descriptors.ToArray();
-
-                var f = new CallSiteFactory(serviceDescriptors);
-                f.Add(typeof(IServiceProvider), new ServiceProviderCallSite());
-                f.Add(typeof(IServiceScopeFactory), new ServiceScopeFactoryCallSite());
-
-                TypeDefinition rootScope = new TypeDefinition("DI", "RootScope", TypeAttributes.Class);
-                TypeDefinition scope = new TypeDefinition("DI", "Scope", TypeAttributes.Class);
-
-                assemblyDefinition.MainModule.Types.Add(rootScope);
-
-                var v = assemblyDefinition.MainModule.ImportReference(typeof(void));
-                var o = assemblyDefinition.MainModule.ImportReference(typeof(object));
-                var t = assemblyDefinition.MainModule.ImportReference(typeof(Type));
-                var gtt = assemblyDefinition.MainModule.ImportReference(t.Resolve().Methods.Single(m => m.Name == "GetTypeFromHandle"));
-                var teq = assemblyDefinition.MainModule.ImportReference(t.Resolve().Methods.Single(m => m.Name == "op_Equality"));
-
-                var sd = assemblyDefinition.MainModule.ImportReference(typeof(ServiceDescriptor));
-                var sdf = assemblyDefinition.MainModule.ImportReference(sd.Resolve().Properties.Single(p => p.Name == nameof(ServiceDescriptor.ImplementationFactory)).GetMethod);
-                var sdi = assemblyDefinition.MainModule.ImportReference(sd.Resolve().Properties.Single(p => p.Name == nameof(ServiceDescriptor.ImplementationInstance)).GetMethod);
-
-                MethodDefinition initMethod = new MethodDefinition("SetGlobals", MethodAttributes.Public, v);
-                var parameterDefinition = new ParameterDefinition("descriptors", ParameterAttributes.None, sd.MakeArrayType());
-                initMethod.Parameters.Add(parameterDefinition);
-                var setGlobalsBuilder = initMethod.Body.GetILProcessor();
-
-                int i = 0;
-                foreach (var descriptor in serviceDescriptors)
-                {
-                    if (descriptor.ImplementationFactory != null || descriptor.ImplementationInstance != null)
-                    {
-                        var field = new FieldDefinition("constant" + i, FieldAttributes.Private, o);
-
-                        setGlobalsBuilder.Emit(OpCodes.Ldarg_0);
-
-                        setGlobalsBuilder.Emit(OpCodes.Ldarg, parameterDefinition);
-                        setGlobalsBuilder.Emit(OpCodes.Ldc_I4, i);
-                        setGlobalsBuilder.Emit(OpCodes.Ldelem_Ref);
-
-                        if (descriptor.ImplementationFactory != null)
-                        {
-                            setGlobalsBuilder.Emit(OpCodes.Callvirt, sdf);
-                        }
-                        else
-                        {
-                            setGlobalsBuilder.Emit(OpCodes.Callvirt, sdi);
-                        }
-
-                        setGlobalsBuilder.Emit(OpCodes.Stfld, field);
-                        rootScope.Fields.Add(field);
-                    }
-
-                    i++;
-                }
-                setGlobalsBuilder.Emit(OpCodes.Ret);
-
-                rootScope.Methods.Add(initMethod);
-
-                MethodDefinition resolveMethod = new MethodDefinition("Resolve", MethodAttributes.Public, o);
-                var resolveTypeParameter = new ParameterDefinition("type", ParameterAttributes.None, t);
-                resolveMethod.Parameters.Add(resolveTypeParameter);
-                rootScope.Methods.Add(resolveMethod);
-                var resolveMethodBuilder = resolveMethod.Body.GetILProcessor();
-
-                foreach (var descriptor in serviceDescriptors)
-                {
-                    if (!descriptor.ServiceType.IsGenericType || descriptor.ServiceType.IsConstructedGenericType)
-                    {
-                        var callsite = f.GetCallSite(descriptor.ServiceType, new CallSiteChain());
-                        var imported = assemblyDefinition.MainModule.ImportReference(callsite.ServiceType);
-
-                        resolveMethodBuilder.Emit(OpCodes.Ldtoken, imported);
-                        resolveMethodBuilder.Emit(OpCodes.Call, gtt);
-
-                        resolveMethodBuilder.Emit(OpCodes.Ldarg, resolveTypeParameter);
-                        resolveMethodBuilder.Emit(OpCodes.Call, teq);
-                        var jumpPlaceholder = Instruction.Create(OpCodes.Nop);
-                        resolveMethodBuilder.Append(jumpPlaceholder);
-                        // Put resolve code here
-
-                        EmitResolver(resolveMethodBuilder, callsite, o);
-
-                        EmitCWL(resolveMethodBuilder, "Resolving " + callsite.ServiceType);
-
-                        var nop = Instruction.Create(OpCodes.Nop);
-                        // Adjust jump
-                        resolveMethodBuilder.Replace(jumpPlaceholder, Instruction.Create(OpCodes.Brfalse, nop));
-                        resolveMethodBuilder.Append(nop);
-                    }
-                }
-
-                resolveMethodBuilder.Emit(OpCodes.Ldnull);
-                resolveMethodBuilder.Emit(OpCodes.Ret);
-            }
-            internal class CecilResolverBuilderContext
-            {
-                public AssemblyDefinition AssemblyDefinition { get; set; }
-            }
-        }
-        private MethodDefinition EmitResolver(TypeDefinition type, ServiceCallSite callsite)
-        {
-            return new MethodDefinition("Resolve_" + callsite.ServiceType.Name, MethodAttributes.Private, );
-        }
-
-        void EmitCWL(ILProcessor p, string text)
-        {
-            var console = p.Body.Method.Module.ImportReference(typeof(Console));
-            var cwl = p.Body.Method.Module.ImportReference(console
-                .Resolve().Methods
-                .First(m => m.Name == "WriteLine" && m.Parameters.Count == 1 && m.Parameters[0].ParameterType.MetadataType == MetadataType.String));
-            p.Emit(OpCodes.Ldstr, text);
-            p.Emit(OpCodes.Call, cwl);
+            new CecilResolverBuilder(_serviceDescriptors.ToArray()).Build().Write(file);
         }
 
         void IServiceProviderEngineCallback.OnCreate(ServiceCallSite callSite)

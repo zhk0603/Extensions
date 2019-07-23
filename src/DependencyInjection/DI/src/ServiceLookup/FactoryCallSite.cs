@@ -9,9 +9,12 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
     {
         public Func<IServiceProvider, object> Factory { get; }
 
-        public FactoryCallSite(ResultCache cache, Type serviceType, Func<IServiceProvider, object> factory) : base(cache)
+        public ServiceDescriptor ServiceDescriptor { get; }
+
+        public FactoryCallSite(ResultCache cache, Type serviceType, Func<IServiceProvider, object> factory, ServiceDescriptor serviceDescriptor) : base(cache)
         {
             Factory = factory;
+            ServiceDescriptor = serviceDescriptor;
             ServiceType = serviceType;
         }
 

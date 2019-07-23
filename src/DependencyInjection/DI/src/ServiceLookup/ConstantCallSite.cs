@@ -8,8 +8,9 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
     internal class ConstantCallSite : ServiceCallSite
     {
         internal object DefaultValue { get; }
+        public ServiceDescriptor Descriptor { get; }
 
-        public ConstantCallSite(Type serviceType, object defaultValue): base(ResultCache.None)
+        public ConstantCallSite(Type serviceType, object defaultValue, ServiceDescriptor descriptor) : base(ResultCache.None)
         {
             if (defaultValue != null && !serviceType.IsInstanceOfType(defaultValue))
             {
@@ -17,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             }
 
             DefaultValue = defaultValue;
+            Descriptor = descriptor;
         }
 
         public override Type ServiceType => DefaultValue.GetType();
