@@ -102,8 +102,7 @@ namespace Microsoft.Extensions.Localization
             {
                 // This expectation is defined by dotnet's automatic resource storage.
                 // We have to conform to "{RootNamespace}.{ResourceLocation}.{FullTypeName - AssemblyName}".
-                var assemblyName = new AssemblyName(typeInfo.Assembly.FullName).Name;
-                return baseNamespace + "." + resourcesRelativePath + TrimPrefix(typeInfo.FullName, assemblyName + ".");
+                return baseNamespace + "." + resourcesRelativePath + TrimPrefix(typeInfo.FullName, baseNamespace + ".");
             }
         }
 
