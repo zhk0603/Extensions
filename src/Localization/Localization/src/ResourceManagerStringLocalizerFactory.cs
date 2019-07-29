@@ -94,16 +94,9 @@ namespace Microsoft.Extensions.Localization
                 throw new ArgumentNullException(nameof(baseNamespace));
             }
 
-            if (string.IsNullOrEmpty(resourcesRelativePath))
-            {
-                return typeInfo.FullName;
-            }
-            else
-            {
-                // This expectation is defined by dotnet's automatic resource storage.
-                // We have to conform to "{RootNamespace}.{ResourceLocation}.{FullTypeName - AssemblyName}".
-                return baseNamespace + "." + resourcesRelativePath + TrimPrefix(typeInfo.FullName, baseNamespace + ".");
-            }
+            // This expectation is defined by dotnet's automatic resource storage.
+            // We have to conform to "{RootNamespace}.{ResourceLocation}.{FullTypeName - AssemblyName}".
+            return baseNamespace + "." + resourcesRelativePath + TrimPrefix(typeInfo.FullName, baseNamespace + ".");
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Copyright (c) .NET Foundation. All rights reserved. 
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -146,7 +146,7 @@ namespace Microsoft.Extensions.Localization.Tests
             typeFactory.Create(type);
 
             // Assert
-            Assert.Equal($"Microsoft.Extensions.Localization.Tests.ResourceManagerStringLocalizerFactoryTest", typeFactory.BaseName);
+            Assert.Equal($"MyNamespace.Microsoft.Extensions.Localization.Tests.ResourceManagerStringLocalizerFactoryTest", typeFactory.BaseName);
         }
 
         [Fact]
@@ -174,7 +174,7 @@ namespace Microsoft.Extensions.Localization.Tests
             typeFactory.Create(type);
 
             // Assert
-            Assert.Equal($"MyNamespace.My.Resources.ResourceManagerStringLocalizerFactoryTest", typeFactory.BaseName);
+            Assert.Equal($"MyNamespace.My.Resources.Microsoft.Extensions.Localization.Tests.ResourceManagerStringLocalizerFactoryTest", typeFactory.BaseName);
         }
 
         [Fact]

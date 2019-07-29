@@ -3,11 +3,6 @@
     <TargetFrameworks>netcoreapp3.0;net472</TargetFrameworks>
     <RootNamespace>LocalizationTest.Abc</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
-    <None Remove="NewFolder\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Microsoft.Extensions.Localization.Abstractions" />
@@ -18,9 +13,34 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controllers\OutsideRootControllers.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>OutsideRootControllers.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\OutsideRootNamespace\Controllers\OutsideRootControllers.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>OutsideRootControllers.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Controllers\OutsideRootControllers.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>OutsideRootControllers.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\OutsideRootNamespace\Controllers\OutsideRootControllers.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>OutsideRootControllers.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="ValuesController.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ValuesController.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="OutsideRootNamespace\Controllers\" />
   </ItemGroup>
 </Project>

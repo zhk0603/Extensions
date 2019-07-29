@@ -3,7 +3,8 @@
 
 namespace LocalizationTest.Abc.Controllers
 {
-    public class ValuesController
+    internal partial class ValuesController
     {
+        public static void GetThing() { }
     }
 }
