@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -20,9 +17,6 @@ namespace Microsoft.JSInterop.Infrastructure
     {
         private const string DisposeDotNetObjectReferenceMethodName = "__Dispose";
         internal static readonly JsonEncodedText DotNetObjectRefKey = JsonEncodedText.Encode("__dotNetObject");
-
-        private static readonly ConcurrentDictionary<AssemblyKey, IReadOnlyDictionary<string, (MethodInfo, Type[])>> _cachedMethodsByAssembly
-            = new ConcurrentDictionary<AssemblyKey, IReadOnlyDictionary<string, (MethodInfo, Type[])>>();
 
         /// <summary>
         /// Receives a call from JS to .NET, locating and invoking the specified method.
@@ -123,41 +117,30 @@ namespace Microsoft.JSInterop.Infrastructure
             }
         }
 
-        private static object InvokeSynchronously(JSRuntime jsRuntime, in DotNetInvocationInfo callInfo, IDotNetObjectReference objectReference, string argsJson)
+        private static object InvokeSynchronously(JSRuntime jsRuntime, in DotNetInvocationInfo invocationInfo, IDotNetObjectReference objectReference, string argsJson)
         {
-            var assemblyName = callInfo.AssemblyName;
-            var methodIdentifier = callInfo.MethodIdentifier;
+            var assemblyName = invocationInfo.AssemblyName;
+            var methodIdentifier = invocationInfo.MethodIdentifier;
 
-            AssemblyKey assemblyKey;
-            if (objectReference is null)
+            if (objectReference != null && assemblyName != null)
             {
-                assemblyKey = new AssemblyKey(assemblyName);
-            }
-            else
-            {
-                if (assemblyName != null)
-                {
-                    throw new ArgumentException($"For instance method calls, '{nameof(assemblyName)}' should be null. Value received: '{assemblyName}'.");
-                }
-
-                if (string.Equals(DisposeDotNetObjectReferenceMethodName, methodIdentifier, StringComparison.Ordinal))
-                {
-                    // The client executed dotNetObjectReference.dispose(). Dispose the reference and exit.
-                    objectReference.Dispose();
-                    return default;
-                }
-
-                assemblyKey = new AssemblyKey(objectReference.Value.GetType().Assembly);
+                throw new ArgumentException($"For instance method calls, '{nameof(assemblyName)}' should be null. Value received: '{assemblyName}'.");
             }
 
-            var (methodInfo, parameterTypes) = GetCachedMethodInfo(assemblyKey, methodIdentifier);
+            if (objectReference != null && string.Equals(DisposeDotNetObjectReferenceMethodName, methodIdentifier, StringComparison.Ordinal))
+            {
+                // The client executed dotNetObjectReference.dispose(). Dispose the reference and exit.
+                objectReference.Dispose();
+                return default;
+            }
 
+            var (invoker, parameterTypes) = JSInvokableCache.GetCachedMethodInfo(invocationInfo, objectReference);
             var suppliedArgs = ParseArguments(jsRuntime, methodIdentifier, argsJson, parameterTypes);
 
             try
             {
                 // objectReference will be null if this call invokes a static JSInvokable method.
-                return methodInfo.Invoke(objectReference?.Value, suppliedArgs);
+                return invoker.Invoke(objectReference?.Value, suppliedArgs);
             }
             catch (TargetInvocationException tie) // Avoid using exception filters for AOT runtime support
             {
@@ -280,119 +263,6 @@ namespace Microsoft.JSInterop.Infrastructure
             {
                 throw new JsonException("Invalid JSON");
             }
-        }
-
-        private static (MethodInfo, Type[]) GetCachedMethodInfo(AssemblyKey assemblyKey, string methodIdentifier)
-        {
-            if (string.IsNullOrWhiteSpace(assemblyKey.AssemblyName))
-            {
-                throw new ArgumentException("Cannot be null, empty, or whitespace.", nameof(assemblyKey.AssemblyName));
-            }
-
-            if (string.IsNullOrWhiteSpace(methodIdentifier))
-            {
-                throw new ArgumentException("Cannot be null, empty, or whitespace.", nameof(methodIdentifier));
-            }
-
-            var assemblyMethods = _cachedMethodsByAssembly.GetOrAdd(assemblyKey, ScanAssemblyForCallableMethods);
-            if (assemblyMethods.TryGetValue(methodIdentifier, out var result))
-            {
-                return result;
-            }
-            else
-            {
-                throw new ArgumentException($"The assembly '{assemblyKey.AssemblyName}' does not contain a public method with [{nameof(JSInvokableAttribute)}(\"{methodIdentifier}\")].");
-            }
-        }
-
-        private static Dictionary<string, (MethodInfo, Type[])> ScanAssemblyForCallableMethods(AssemblyKey assemblyKey)
-        {
-            // TODO: Consider looking first for assembly-level attributes (i.e., if there are any,
-            // only use those) to avoid scanning, especially for framework assemblies.
-            var result = new Dictionary<string, (MethodInfo, Type[])>(StringComparer.Ordinal);
-            var invokableMethods = GetRequiredLoadedAssembly(assemblyKey)
-                .GetExportedTypes()
-                .SelectMany(type => type.GetMethods(
-                    BindingFlags.Public |
-                    BindingFlags.DeclaredOnly |
-                    BindingFlags.Instance |
-                    BindingFlags.Static))
-                .Where(method => method.IsDefined(typeof(JSInvokableAttribute), inherit: false));
-            foreach (var method in invokableMethods)
-            {
-                var identifier = method.GetCustomAttribute<JSInvokableAttribute>(false).Identifier ?? method.Name;
-                var parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
-
-                try
-                {
-                    result.Add(identifier, (method, parameterTypes));
-                }
-                catch (ArgumentException)
-                {
-                    if (result.ContainsKey(identifier))
-                    {
-                        throw new InvalidOperationException($"The assembly '{assemblyKey.AssemblyName}' contains more than one " +
-                            $"[JSInvokable] method with identifier '{identifier}'. All [JSInvokable] methods within the same " +
-                            $"assembly must have different identifiers. You can pass a custom identifier as a parameter to " +
-                            $"the [JSInvokable] attribute.");
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private static Assembly GetRequiredLoadedAssembly(AssemblyKey assemblyKey)
-        {
-            // We don't want to load assemblies on demand here, because we don't necessarily trust
-            // "assemblyName" to be something the developer intended to load. So only pick from the
-            // set of already-loaded assemblies.
-            // In some edge cases this might force developers to explicitly call something on the
-            // target assembly (from .NET) before they can invoke its allowed methods from JS.
-            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            // Using LastOrDefault to workaround for https://github.com/dotnet/arcade/issues/2816.
-            // In most ordinary scenarios, we wouldn't have two instances of the same Assembly in the AppDomain
-            // so this doesn't change the outcome.
-            var assembly = loadedAssemblies.LastOrDefault(a => new AssemblyKey(a).Equals(assemblyKey));
-
-            return assembly
-                ?? throw new ArgumentException($"There is no loaded assembly with the name '{assemblyKey.AssemblyName}'.");
-        }
-
-        private readonly struct AssemblyKey : IEquatable<AssemblyKey>
-        {
-            public AssemblyKey(Assembly assembly)
-            {
-                Assembly = assembly;
-                AssemblyName = assembly.GetName().Name;
-            }
-
-            public AssemblyKey(string assemblyName)
-            {
-                Assembly = null;
-                AssemblyName = assemblyName;
-            }
-
-            public Assembly Assembly { get; }
-
-            public string AssemblyName { get; }
-
-            public bool Equals(AssemblyKey other)
-            {
-                if (Assembly != null && other.Assembly != null)
-                {
-                    return Assembly == other.Assembly;
-                }
-
-                return AssemblyName.Equals(other.AssemblyName, StringComparison.Ordinal);
-            }
-
-            public override int GetHashCode() => StringComparer.Ordinal.GetHashCode(AssemblyName);
         }
     }
 }
