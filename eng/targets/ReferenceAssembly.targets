@@ -71,7 +71,7 @@
       <FilteredOriginalReferences
         Include="%(_OriginalReferences.Identity)"
         Condition="'%(_OriginalReferences.NuGetPackageId)' == '' AND '%(_OriginalReferences.PrivateAssets)' != 'All'" />
-      <IndirectReferencesItem Include="@(ProjectReference->'%(Filename)')" />
+      <IndirectReferencesItem Include="%(ProjectReference.Filename)" Condition="'%(ProjectReference.PrivateAssets)' != 'All'" />
     </ItemGroup>
 
     <PropertyGroup>
