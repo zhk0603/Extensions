@@ -47,6 +47,7 @@
       <_RefSourceOutputPath>$([System.IO.Directory]::GetParent('$(MSBuildProjectDirectory)'))/ref/</_RefSourceOutputPath>
       <_RefSourceFileName>$(AssemblyName).$(TargetFramework).cs</_RefSourceFileName>
       <_RefSourceFileOutputPath>$(_RefSourceOutputPath)$(_RefSourceFileName)</_RefSourceFileOutputPath>
+      <_RefIndirectReferencesFileOutputPath>$(_RefSourceOutputPath)ImportMe.props</_RefIndirectReferencesFileOutputPath>
     </PropertyGroup>
 
     <ItemGroup>
@@ -70,6 +71,7 @@
       <FilteredOriginalReferences
         Include="%(_OriginalReferences.Identity)"
         Condition="'%(_OriginalReferences.NuGetPackageId)' == '' AND '%(_OriginalReferences.PrivateAssets)' != 'All'" />
+      <IndirectReferencesItem Include="@(ProjectReference->'%(Filename)')" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -85,11 +87,21 @@
   </ItemGroup>
 ]]>
       </ReferencesContent>
+
+      <IndirectReferencesContent>
+      <![CDATA[
+$(AssemblyName)
+@(IndirectReferencesItem)
+]]>
+      </IndirectReferencesContent>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectListContent Include="$(ReferencesContent)" TargetFramework="$(TargetFramework)" />
     </ItemGroup>
+
+    <WriteLinesToFile Condition="'$(OS)' == 'Windows_NT'"
+                      File="$(_RefIndirectReferencesFileOutputPath)" Lines="$([MSBuild]::Escape($(IndirectReferencesContent)))" Overwrite="true" />
   </Target>
 
 </Project>
