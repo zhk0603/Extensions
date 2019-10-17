@@ -1,0 +1,2 @@
+Microsoft.Extensions.Diagnostics.HealthChecks
+Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions;Microsoft.Extensions.Hosting.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.Configuration.Abstractions;Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.FileProviders.Abstractions;Microsoft.Extensions.Logging.Abstractions;Microsoft.Extensions.Primitives

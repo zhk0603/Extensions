@@ -1,0 +1,2 @@
+Microsoft.Extensions.Caching.StackExchangeRedis
+Microsoft.Extensions.Caching.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.Primitives

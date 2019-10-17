@@ -1,0 +1,2 @@
+Microsoft.Extensions.Localization
+Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.Localization.Abstractions;Microsoft.Extensions.Logging.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.Primitives

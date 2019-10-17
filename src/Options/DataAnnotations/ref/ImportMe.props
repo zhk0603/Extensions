@@ -1,0 +1,2 @@
+Microsoft.Extensions.Options.DataAnnotations
+Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.Primitives

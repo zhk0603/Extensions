@@ -1,0 +1,2 @@
+Microsoft.Extensions.Caching.Memory
+Microsoft.Extensions.Caching.Abstractions;Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.Logging.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.Primitives

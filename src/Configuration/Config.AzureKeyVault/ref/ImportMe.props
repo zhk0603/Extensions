@@ -1,0 +1,2 @@
+Microsoft.Extensions.Configuration.AzureKeyVault
+Microsoft.Extensions.Configuration.FileExtensions;Microsoft.Extensions.Configuration;Microsoft.Extensions.Configuration.Abstractions;Microsoft.Extensions.FileProviders.Abstractions;Microsoft.Extensions.FileProviders.Physical;Microsoft.Extensions.FileSystemGlobbing;Microsoft.Extensions.Primitives

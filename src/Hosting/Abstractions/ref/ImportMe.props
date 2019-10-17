@@ -1,0 +1,2 @@
+Microsoft.Extensions.Hosting.Abstractions
+Microsoft.Extensions.Configuration.Abstractions;Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.FileProviders.Abstractions;Microsoft.Extensions.Logging.Abstractions;Microsoft.Extensions.Primitives

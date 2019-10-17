@@ -1,0 +1,2 @@
+Microsoft.Extensions.Logging.Debug
+Microsoft.Extensions.Logging;Microsoft.Extensions.Configuration;Microsoft.Extensions.Configuration.Abstractions;Microsoft.Extensions.Configuration.Binder;Microsoft.Extensions.DependencyInjection;Microsoft.Extensions.DependencyInjection.Abstractions;Microsoft.Extensions.Logging.Abstractions;Microsoft.Extensions.Options;Microsoft.Extensions.Primitives

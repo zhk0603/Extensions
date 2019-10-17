@@ -1,0 +1,2 @@
+Microsoft.Extensions.Configuration.UserSecrets
+Microsoft.Extensions.Configuration.Json;Microsoft.Extensions.Configuration;Microsoft.Extensions.Configuration.Abstractions;Microsoft.Extensions.Configuration.FileExtensions;Microsoft.Extensions.FileProviders.Abstractions;Microsoft.Extensions.FileProviders.Physical;Microsoft.Extensions.FileSystemGlobbing;Microsoft.Extensions.Primitives
